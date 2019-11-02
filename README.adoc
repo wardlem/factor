@@ -1,0 +1,4 @@
+Factor
+======
+
+Factor is a light-weight library for building reactive web components.

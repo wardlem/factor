@@ -1,0 +1,28 @@
+{
+  "name": "@potient/factor",
+  "version": "1.0.0",
+  "description": "A light-weight framework for building reactive components",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wardlem/factor.git"
+  },
+  "keywords": [
+    "webcomponent",
+    "functional",
+    "reactive"
+  ],
+  "type": "module",
+  "author": "Mark Wardle <mark@potient.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wardlem/factor/issues"
+  },
+  "homepage": "https://github.com/wardlem/factor#readme",
+  "devDependencies": {
+    "eslint": "^6.5.1"
+  }
+}
