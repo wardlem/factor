@@ -2,9 +2,10 @@
   "name": "@potient/factor",
   "version": "1.0.0",
   "description": "A light-weight framework for building reactive components",
-  "main": "index.js",
+  "main": "Factor.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run prepare && karma start --single-run",
+    "prepare": "rollup index.js --format esm --file Factor.js"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,23 @@
   },
   "homepage": "https://github.com/wardlem/factor#readme",
   "devDependencies": {
-    "eslint": "^6.5.1"
+    "chai": "^4.2.0",
+    "eslint": "^6.5.1",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "jasmine-core": "^3.5.0",
+    "karma": "^4.4.1",
+    "karma-chai": "^0.1.0",
+    "karma-chrome-launcher": "^3.1.0",
+    "karma-coverage-istanbul-reporter": "^2.1.0",
+    "karma-firefox-launcher": "^1.2.0",
+    "karma-mocha": "^1.3.0",
+    "karma-mocha-reporter": "^2.2.5",
+    "karma-rollup-preprocessor": "^7.0.2",
+    "mocha": "^6.2.2",
+    "rollup": "^1.26.3"
   }
 }

@@ -1,2 +1,4 @@
 extends: standard
 root: true
+env:
+  browser: true
