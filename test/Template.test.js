@@ -233,5 +233,109 @@ describe('Template', function () {
         expect(div.getAttribute('attr2')).to.not.exist
       })
     })
+
+    describe('on:', function () {
+      it('binds event listeners with the on: prefix', function (done) {
+        const { binding, container } = bindAndContain('<div on:custom="theHandler"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('on:custom')).to.not.exist
+        const handler = (event) => {
+          expect(event).to.be.instanceof(CustomEvent)
+          expect(event.detail).to.equal('just testing')
+          done()
+        }
+        binding({ theHandler: handler })
+
+        const event = new CustomEvent('custom', { detail: 'just testing' })
+        div.dispatchEvent(event)
+      })
+
+      it('binds event listeners with the ! prefix', function (done) {
+        const { binding, container } = bindAndContain('<div !custom="theHandler"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('!custom')).to.not.exist
+        const handler = (event) => {
+          expect(event).to.be.instanceof(CustomEvent)
+          expect(event.detail).to.equal('just testing')
+          done()
+        }
+        binding({ theHandler: handler })
+
+        const event = new CustomEvent('custom', { detail: 'just testing' })
+        div.dispatchEvent(event)
+      })
+
+      it('binds an object of event listeners with the on: prefix', function (done) {
+        const { binding, container } = bindAndContain('<div on:="handlers"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('on:')).to.not.exist
+        const handler = (event) => {
+          expect(event).to.be.instanceof(CustomEvent)
+          expect(event.detail).to.equal('just testing')
+          done()
+        }
+        binding({ handlers: { custom: handler } })
+
+        const event = new CustomEvent('custom', { detail: 'just testing' })
+        div.dispatchEvent(event)
+      })
+
+      it('binds an object of event listeners with the ! prefix', function (done) {
+        const { binding, container } = bindAndContain('<div !="handlers"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('!')).to.not.exist
+        const handler = (event) => {
+          expect(event).to.be.instanceof(CustomEvent)
+          expect(event.detail).to.equal('just testing')
+          done()
+        }
+        binding({ handlers: { custom: handler } })
+
+        const event = new CustomEvent('custom', { detail: 'just testing' })
+        div.dispatchEvent(event)
+      })
+
+      it('removes event listeners when subsequently set to null', function (done) {
+        const { binding, container } = bindAndContain('<div !custom="theHandler"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('!custom')).to.not.exist
+        const handler = (event) => {
+          expect.fail('Event handler should be removed')
+        }
+        binding({ theHandler: handler })
+        binding({ theHandler: null })
+        const event = new CustomEvent('custom', { detail: 'just testing' })
+        div.dispatchEvent(event)
+        setTimeout(done, 5)
+      })
+
+      it('removes event listeners when missing from subsequent binds', function (done) {
+        const { binding, container } = bindAndContain('<div !="handlers"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('!')).to.not.exist
+        const handler = (event) => {
+          expect.fail('Event handler should be removed')
+        }
+        binding({ handlers: { custom: handler } })
+        binding({ handlers: {} })
+        const event = new CustomEvent('custom', { detail: 'just testing' })
+        div.dispatchEvent(event)
+        setTimeout(done, 5)
+      })
+
+      it('removes event listeners when object missing from subsequent binds', function (done) {
+        const { binding, container } = bindAndContain('<div !="handlers"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('!')).to.not.exist
+        const handler = (event) => {
+          expect.fail('Event handler should be removed')
+        }
+        binding({ handlers: { custom: handler } })
+        binding({})
+        const event = new CustomEvent('custom', { detail: 'just testing' })
+        div.dispatchEvent(event)
+        setTimeout(done, 5)
+      })
+    })
   })
 })

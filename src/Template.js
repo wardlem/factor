@@ -5,6 +5,7 @@ import {
 
 import propDirective from './attrPrefixes/prop'
 import attrDirective from './attrPrefixes/attr'
+import onDirective from './attrPrefixes/on'
 
 const ATTR_PREFIX_REGISTRY = new Map()
 const ATTR_SYMBOL_REGISTRY = new Map()
@@ -136,3 +137,4 @@ function bindElementAttributes (element) {
 // Bind default attribute binders
 registerAttributeDirective(propDirective)
 registerAttributeDirective(attrDirective)
+registerAttributeDirective(onDirective)
