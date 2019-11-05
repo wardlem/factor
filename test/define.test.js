@@ -51,4 +51,80 @@ describe('define', function () {
     const ThirdRegistrationTest = define('ThirdRegistrationTest', {})
     expect(window.customElements.get(ThirdRegistrationTest.tag)).to.equal(ThirdRegistrationTest)
   })
+
+  it('sets a template property on the constructor that is a template element', function () {
+    const TemplateTest = define('TemplateTest', { register: false })
+    expect(TemplateTest.template).to.be.an.instanceof(HTMLTemplateElement)
+  })
+
+  it('creates an empty template by default', function () {
+    const TemplateTest = define('TemplateTest', { register: false })
+    expect(TemplateTest.template.innerHTML).to.equal('')
+  })
+
+  it('sets the templates html when provided', function () {
+    const TemplateTest = define('TemplateTest', {
+      register: false,
+      template: 'template contents'
+    })
+    expect(TemplateTest.template.innerHTML).to.equal('template contents')
+  })
+
+  it('allows properties to be defined with default values', function () {
+    const props = {
+      firstTest: { default: 'one' },
+      secondTest: { default: 'two' }
+    }
+
+    const DefinePropertyTestOne = define('DefinePropertyTestOne', { props })
+
+    const element = document.createElement(DefinePropertyTestOne.tag)
+    expect(element.firstTest).to.equal('one')
+    expect(element.secondTest).to.equal('two')
+  })
+
+  it('makes props updatable as a property', function () {
+    const props = {
+      testProp: { default: 'initial' }
+    }
+
+    const DefinePropertyTestTwo = define('DefinePropertyTestTwo', { props })
+
+    const element = document.createElement(DefinePropertyTestTwo.tag)
+    expect(element.testProp).to.equal('initial')
+    element.testProp = 'updated'
+    expect(element.testProp).to.equal('updated')
+  })
+
+  it('makes props updatable as an attribute', function () {
+    const props = {
+      testProp: { default: 'initial' }
+    }
+
+    const DefinePropertyTestThree = define('DefinePropertyTestThree', { props })
+
+    const element = document.createElement(DefinePropertyTestThree.tag)
+    expect(element.testProp).to.equal('initial')
+    element.setAttribute('testProp', 'updated')
+    expect(element.testProp).to.equal('updated')
+  })
+
+  it('dynamically updates the view when the property changes', function (done) {
+    const props = {
+      testProp: { default: 'initial' }
+    }
+
+    const template = '{{testProp}}'
+
+    const PropertyUpdateTestOne = define('PropertyUpdateTestOne', { props, template })
+    const element = document.createElement(PropertyUpdateTestOne.tag)
+    expect(element.rootNode.innerHTML).to.equal('initial')
+    element.testProp = 'updated'
+
+    // Updates are asynchronously batched, so we have to wait a moment...
+    setTimeout(() => {
+      expect(element.rootNode.innerHTML).to.equal('updated')
+      done()
+    }, 5)
+  })
 })
