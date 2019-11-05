@@ -116,6 +116,27 @@ describe('Template', function () {
         expect(div.prop1).to.not.exist
         expect(div.prop2).to.equal('two')
       })
+
+      it('removes all missing props when second update has null value', function () {
+        const { binding, container } = bindAndContain('<div #="theProps"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('#')).to.not.exist
+        expect(div.prop1).to.not.exist
+        expect(div.prop2).to.not.exist
+        binding({
+          theProps: {
+            prop1: 'one',
+            prop2: 'two'
+          }
+        })
+        expect(div.prop1).to.equal('one')
+        expect(div.prop2).to.equal('two')
+        binding({
+          theProps: null
+        })
+        expect(div.prop1).to.not.exist
+        expect(div.prop2).to.not.exist
+      })
     })
 
     describe('attr:', function () {
@@ -189,6 +210,27 @@ describe('Template', function () {
         })
         expect(div.getAttribute('attr1')).to.not.exist
         expect(div.getAttribute('attr2')).to.equal('two')
+      })
+
+      it('removes all missing attributes when second update has null value', function () {
+        const { binding, container } = bindAndContain('<div @="theAttrs"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('#')).to.not.exist
+        expect(div.getAttribute('attr1')).to.not.exist
+        expect(div.getAttribute('attr2')).to.not.exist
+        binding({
+          theAttrs: {
+            attr1: 'one',
+            attr2: 'two'
+          }
+        })
+        expect(div.getAttribute('attr1')).to.equal('one')
+        expect(div.getAttribute('attr2')).to.equal('two')
+        binding({
+          theAttrs: null
+        })
+        expect(div.getAttribute('attr1')).to.not.exist
+        expect(div.getAttribute('attr2')).to.not.exist
       })
     })
   })
