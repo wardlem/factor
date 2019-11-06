@@ -7,6 +7,7 @@ import propDirective from './attrPrefixes/prop'
 import attrDirective from './attrPrefixes/attr'
 import onDirective from './attrPrefixes/on'
 import classDirective from './attrPrefixes/class'
+import styleDirective from './attrPrefixes/style'
 
 const ATTR_PREFIX_REGISTRY = new Map()
 const ATTR_SYMBOL_REGISTRY = new Map()
@@ -140,3 +141,4 @@ registerAttributeDirective(propDirective)
 registerAttributeDirective(attrDirective)
 registerAttributeDirective(onDirective)
 registerAttributeDirective(classDirective)
+registerAttributeDirective(styleDirective)

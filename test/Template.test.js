@@ -510,5 +510,86 @@ describe('Template', function () {
         expect(div.classList.contains('second')).to.be.true
       })
     })
+
+    describe('style:', function () {
+      it('sets a style with the style: prefix', function () {
+        const { binding, container } = bindAndContain('<div style:border-radius="borderRadius"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('style:border-radius')).to.not.exist
+        expect(div.style.getPropertyValue('border-radius')).to.equal('')
+        binding({ borderRadius: '2px' })
+        expect(div.style.getPropertyValue('border-radius')).to.equal('2px')
+      })
+
+      it('sets a style with the $ prefix', function () {
+        const { binding, container } = bindAndContain('<div $border-radius="borderRadius"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('$border-radius')).to.not.exist
+        expect(div.style.getPropertyValue('border-radius')).to.equal('')
+        binding({ borderRadius: '2px' })
+        expect(div.style.getPropertyValue('border-radius')).to.equal('2px')
+      })
+
+      it('sets an object of styles with the style: prefix', function () {
+        const { binding, container } = bindAndContain('<div style:="theStyles"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('style:')).to.not.exist
+        expect(div.style.getPropertyValue('border-radius')).to.equal('')
+        expect(div.style.getPropertyValue('border-width')).to.equal('')
+        binding({ theStyles: { borderRadius: '2px', 'border-width': '4px' } })
+        expect(div.style.getPropertyValue('border-radius')).to.equal('2px')
+        expect(div.style.getPropertyValue('border-width')).to.equal('4px')
+      })
+
+      it('sets an object of styles with the $ prefix', function () {
+        const { binding, container } = bindAndContain('<div $="theStyles"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('$')).to.not.exist
+        expect(div.style.getPropertyValue('border-radius')).to.equal('')
+        expect(div.style.getPropertyValue('border-width')).to.equal('')
+        binding({ theStyles: { borderRadius: '2px', 'border-width': '4px' } })
+        expect(div.style.getPropertyValue('border-radius')).to.equal('2px')
+        expect(div.style.getPropertyValue('border-width')).to.equal('4px')
+      })
+
+      it('removes a style if it becomes falsey', function () {
+        const { binding, container } = bindAndContain('<div style:border-radius="borderRadius"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('style:border-radius')).to.not.exist
+        expect(div.style.getPropertyValue('border-radius')).to.equal('')
+        binding({ borderRadius: '2px' })
+        expect(div.style.getPropertyValue('border-radius')).to.equal('2px')
+        binding({ borderRadius: false })
+        expect(div.style.getPropertyValue('border-radius')).to.equal('')
+      })
+
+      it('removes a style from an object of styles if it becomes falsey', function () {
+        const { binding, container } = bindAndContain('<div $="theStyles"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('$')).to.not.exist
+        expect(div.style.getPropertyValue('border-radius')).to.equal('')
+        expect(div.style.getPropertyValue('border-width')).to.equal('')
+        binding({ theStyles: { borderRadius: '2px', 'border-width': '4px' } })
+        expect(div.style.getPropertyValue('border-radius')).to.equal('2px')
+        expect(div.style.getPropertyValue('border-width')).to.equal('4px')
+        binding({ theStyles: { borderRadius: null, 'border-width': '4px' } })
+        expect(div.style.getPropertyValue('border-radius')).to.equal('')
+        expect(div.style.getPropertyValue('border-width')).to.equal('4px')
+      })
+
+      it('removes all styles from an object of styles if it becomes falsey', function () {
+        const { binding, container } = bindAndContain('<div $="theStyles"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('$')).to.not.exist
+        expect(div.style.getPropertyValue('border-radius')).to.equal('')
+        expect(div.style.getPropertyValue('border-width')).to.equal('')
+        binding({ theStyles: { borderRadius: '2px', 'border-width': '4px' } })
+        expect(div.style.getPropertyValue('border-radius')).to.equal('2px')
+        expect(div.style.getPropertyValue('border-width')).to.equal('4px')
+        binding({ theStyles: null })
+        expect(div.style.getPropertyValue('border-radius')).to.equal('')
+        expect(div.style.getPropertyValue('border-width')).to.equal('')
+      })
+    })
   })
 })

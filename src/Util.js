@@ -8,6 +8,10 @@ export function camelToKebab (str) {
   return str.replace(/([^^-])([A-Z])/g, '$1-$2').toLowerCase()
 }
 
+export function kebabToCamel (str) {
+  return str.replace(/-+(\w)/g, (match, char) => char.toUpperCase())
+}
+
 export function getPath (object, path) {
   if (typeof path === 'string') {
     return getPath(object, path.split('.'))
