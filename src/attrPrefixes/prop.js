@@ -11,7 +11,11 @@ const prop = {
       // This will be an object of properties
       let lastKeys = []
       return function setProps (data) {
-        const props = getPath(data, propKey)
+        let props = getPath(data, propKey)
+        if (typeof props === 'function') {
+          props = props(data)
+        }
+
         if (props == null || props.constructor !== Object) {
           // Remove all the properties we have previously set
           for (const key of lastKeys) {

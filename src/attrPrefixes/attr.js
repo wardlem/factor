@@ -9,9 +9,14 @@ const attr = {
   bind (element, attrName, attrKey) {
     if (attrName === '') {
       // This will be an object of attributes
+      // or a function that returns an object of attributes.
       let lastKeys = []
       return function setAttrs (data) {
-        const attrs = getPath(data, attrKey)
+        let attrs = getPath(data, attrKey)
+        if (typeof attrs === 'function') {
+          attrs = attrs(data)
+        }
+
         if (attrs == null || attrs.constructor !== Object) {
           // Remove all the attributes we have previously set
           for (const key of lastKeys) {
@@ -41,7 +46,11 @@ const attr = {
     }
 
     return function setAttr (data) {
-      const value = getPath(data, attrKey)
+      let value = getPath(data, attrKey)
+      if (typeof value === 'function') {
+        value = value(data)
+      }
+
       setAttribute(element, attrName, value)
     }
   }

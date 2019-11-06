@@ -137,6 +137,15 @@ describe('Template', function () {
         expect(div.prop1).to.not.exist
         expect(div.prop2).to.not.exist
       })
+
+      it('calls a function for an object value', function () {
+        const { binding, container } = bindAndContain('<div prop:="fn"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('prop:test')).to.not.exist
+        expect(div.test).to.not.exist
+        binding({ value: 5, fn: (data) => ({ v: data.value + 2 }) })
+        expect(div.v).to.equal(7)
+      })
     })
 
     describe('attr:', function () {
@@ -231,6 +240,15 @@ describe('Template', function () {
         })
         expect(div.getAttribute('attr1')).to.not.exist
         expect(div.getAttribute('attr2')).to.not.exist
+      })
+
+      it('calls a function for an object value', function () {
+        const { binding, container } = bindAndContain('<div attr:="fn"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('prop:test')).to.not.exist
+        expect(div.test).to.not.exist
+        binding({ value: 5, fn: (data) => ({ v: data.value + 2 }) })
+        expect(div.getAttribute('v')).to.equal('7')
       })
     })
 
@@ -336,6 +354,19 @@ describe('Template', function () {
         div.dispatchEvent(event)
         setTimeout(done, 5)
       })
+
+      it('calls a function for an object value', function (done) {
+        const { binding, container } = bindAndContain('<div on:="fn"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('on:')).to.not.exist
+        expect(div.test).to.not.exist
+        const handler = (event) => {
+          done()
+        }
+        binding({ handler, fn: (data) => ({ custom: data.handler }) })
+        const event = new CustomEvent('custom', { detail: 'just testing' })
+        div.dispatchEvent(event)
+      })
     })
 
     describe('class:', function () {
@@ -436,6 +467,22 @@ describe('Template', function () {
         expect(div.classList.length).to.equal(2)
         expect(div.classList.contains('first')).to.be.true
         expect(div.classList.contains('third')).to.be.true
+        expect(div.classList.contains('two')).to.be.false
+      })
+
+      it('removes all classes that were previously present when the value is invalid', function () {
+        const { binding, container } = bindAndContain('<div .="theClasses"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('.')).to.not.exist
+        expect(div.classList.length).to.equal(0)
+        binding({ theClasses: ['first', 'two'] })
+        expect(div.classList.length).to.equal(2)
+        expect(div.classList.contains('first')).to.be.true
+        expect(div.classList.contains('two')).to.be.true
+        binding({ theClasses: 1 })
+        expect(div.classList.length).to.equal(0)
+        expect(div.classList.contains('first')).to.be.false
+        expect(div.classList.contains('third')).to.be.false
         expect(div.classList.contains('two')).to.be.false
       })
 

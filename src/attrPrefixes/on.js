@@ -11,8 +11,12 @@ const prop = {
       // This will be an object of event handlers
       let lastHandlers = {}
       return function setEventListeners (data) {
-        const handlers = getPath(data, handlerKey)
-        if (handlers === lastHandlers) {
+        let handlers = getPath(data, handlerKey)
+        if (typeof handlers === 'function') {
+          handlers = handlers(data)
+        }
+
+        if (isEqual(handlers, lastHandlers)) {
           return
         }
 
