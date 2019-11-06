@@ -337,5 +337,131 @@ describe('Template', function () {
         setTimeout(done, 5)
       })
     })
+
+    describe('class:', function () {
+      it('adds a class with the class: prefix if it resolves to a truthy value', function () {
+        const { binding, container } = bindAndContain('<div class:test="bool"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('class:test')).to.not.exist
+        expect(div.classList.contains('test')).to.be.false
+        binding({ bool: true })
+        expect(div.classList.contains('test')).to.be.true
+        binding({ bool: {} })
+        expect(div.classList.contains('test')).to.be.true
+        binding({ bool: 1 })
+        expect(div.classList.contains('test')).to.be.true
+      })
+
+      it('does not add a class with the class: prefix if it resolves to a falsy value', function () {
+        const { binding, container } = bindAndContain('<div class:test="bool"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('class:test')).to.not.exist
+        expect(div.classList.contains('test')).to.be.false
+        binding({ bool: false })
+        expect(div.classList.contains('test')).to.be.false
+        binding({ bool: 0 })
+        expect(div.classList.contains('test')).to.be.false
+        binding({ bool: null })
+        expect(div.classList.contains('test')).to.be.false
+        binding({ bool: '' })
+        expect(div.classList.contains('test')).to.be.false
+        binding({})
+        expect(div.classList.contains('test')).to.be.false
+      })
+
+      it('treats the . prefix as an alias to class:', function () {
+        const { binding, container } = bindAndContain('<div .test="bool"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('.test')).to.not.exist
+        expect(div.classList.contains('test')).to.be.false
+        binding({ bool: true })
+        expect(div.classList.contains('test')).to.be.true
+      })
+
+      it('removes a class if it becomes falsey', function () {
+        const { binding, container } = bindAndContain('<div .test="bool"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('.test')).to.not.exist
+        expect(div.classList.contains('test')).to.be.false
+        binding({ bool: true })
+        expect(div.classList.contains('test')).to.be.true
+        binding({ bool: false })
+        expect(div.classList.contains('test')).to.be.false
+      })
+
+      it('adds an array of classes', function () {
+        const { binding, container } = bindAndContain('<div .="theClasses"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('.')).to.not.exist
+        expect(div.classList.length).to.equal(0)
+        binding({ theClasses: ['first', 'two'] })
+        expect(div.classList.length).to.equal(2)
+        expect(div.classList.contains('first')).to.be.true
+        expect(div.classList.contains('two')).to.be.true
+      })
+
+      it('adds a string of classes', function () {
+        const { binding, container } = bindAndContain('<div .="theClasses"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('.')).to.not.exist
+        expect(div.classList.length).to.equal(0)
+        binding({ theClasses: ' first two ' })
+        expect(div.classList.length).to.equal(2)
+        expect(div.classList.contains('first')).to.be.true
+        expect(div.classList.contains('two')).to.be.true
+      })
+
+      it('adds an object of classes if the value is truthy', function () {
+        const { binding, container } = bindAndContain('<div .="theClasses"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('.')).to.not.exist
+        expect(div.classList.length).to.equal(0)
+        binding({ theClasses: { first: true, two: 'ok', third: false } })
+        expect(div.classList.length).to.equal(2)
+        expect(div.classList.contains('first')).to.be.true
+        expect(div.classList.contains('two')).to.be.true
+        expect(div.classList.contains('third')).to.be.false
+      })
+
+      it('removes classes that were previously present', function () {
+        const { binding, container } = bindAndContain('<div .="theClasses"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('.')).to.not.exist
+        expect(div.classList.length).to.equal(0)
+        binding({ theClasses: ['first', 'two'] })
+        expect(div.classList.length).to.equal(2)
+        expect(div.classList.contains('first')).to.be.true
+        expect(div.classList.contains('two')).to.be.true
+        binding({ theClasses: ['first', 'third'] })
+        expect(div.classList.length).to.equal(2)
+        expect(div.classList.contains('first')).to.be.true
+        expect(div.classList.contains('third')).to.be.true
+        expect(div.classList.contains('two')).to.be.false
+      })
+
+      it('will call a function with the data for a single class', function () {
+        const { binding, container } = bindAndContain('<div .test="fn"></div>')
+        const div = container.childNodes[0]
+        expect(div.getAttribute('.test')).to.not.exist
+        expect(div.classList.contains('test')).to.be.false
+        binding({
+          bool: 'clown',
+          fn: (data) => data.bool === 'clown'
+        })
+        expect(div.classList.contains('test')).to.be.true
+      })
+
+      it('will call a function with the data for a single class', function () {
+        const { binding, container } = bindAndContain('<div .="fn"></div>')
+        const div = container.childNodes[0]
+        binding({
+          doFirst: false,
+          doSecond: true,
+          fn: (data) => ({ first: data.doFirst, second: data.doSecond })
+        })
+        expect(div.classList.length).to.equal(1)
+        expect(div.classList.contains('second')).to.be.true
+      })
+    })
   })
 })
