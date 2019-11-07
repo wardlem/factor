@@ -3,11 +3,11 @@ import {
   isEqual
 } from './Util'
 
-import propDirective from './attrPrefixes/prop'
-import attrDirective from './attrPrefixes/attr'
-import onDirective from './attrPrefixes/on'
-import classDirective from './attrPrefixes/class'
-import styleDirective from './attrPrefixes/style'
+import propDirective from './attrDirectives/prop'
+import attrDirective from './attrDirectives/attr'
+import onDirective from './attrDirectives/on'
+import classDirective from './attrDirectives/class'
+import styleDirective from './attrDirectives/style'
 
 const ATTR_PREFIX_REGISTRY = new Map()
 const ATTR_SYMBOL_REGISTRY = new Map()
