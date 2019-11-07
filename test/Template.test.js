@@ -146,6 +146,14 @@ describe('Template', function () {
         binding({ value: 5, fn: (data) => ({ v: data.value + 2 }) })
         expect(div.v).to.equal(7)
       })
+
+      it('converts kebab-case to camelCase', function () {
+        const { binding, container } = bindAndContain('<div #test-prop="dude"></div>')
+        const div = container.childNodes[0]
+        expect(div.testProp).to.not.exist
+        binding({ dude: 'Vader' })
+        expect(div.testProp).to.equal('Vader')
+      })
     })
 
     describe('attr:', function () {

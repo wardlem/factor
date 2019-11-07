@@ -1,6 +1,7 @@
 import {
   getPath,
-  isEqual
+  isEqual,
+  kebabToCamel
 } from '../Util'
 
 const prop = {
@@ -28,14 +29,14 @@ const prop = {
           const newLastKeys = Object.keys(props)
           for (const key of newLastKeys) {
             if (!isEqual(props[key], element[key])) {
-              element[key] = props[key]
+              element[kebabToCamel(key)] = props[key]
             }
           }
 
           // Remove keys not in the new props
           for (const key of lastKeys) {
             if (!newLastKeys.includes(key)) {
-              element[key] = undefined
+              element[kebabToCamel(key)] = undefined
             }
           }
 
@@ -48,7 +49,7 @@ const prop = {
     return function setProp (data) {
       const value = getPath(data, propKey)
       if (!isEqual(element[propName], value)) {
-        element[propName] = value
+        element[kebabToCamel(propName)] = value
       }
     }
   }
