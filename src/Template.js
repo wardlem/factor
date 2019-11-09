@@ -3,15 +3,9 @@ import {
   isEqual
 } from './Util'
 
-import propDirective from './attrDirectives/prop'
-import attrDirective from './attrDirectives/attr'
-import onDirective from './attrDirectives/on'
-import classDirective from './attrDirectives/class'
-import styleDirective from './attrDirectives/style'
-
 const ATTR_PREFIX_REGISTRY = new Map()
 const ATTR_SYMBOL_REGISTRY = new Map()
-const ELEMENT_DIRECTIVE_REGISTRY = new Map()
+const TAG_DIRECTIVE_REGISTRY = new Map()
 
 export function registerAttributeDirective (def) {
   const {
@@ -35,6 +29,21 @@ export function registerAttributeDirective (def) {
   }
 }
 
+export function registerTagDirective (def) {
+  const {
+    tag,
+    bind,
+    override = false
+  } = def
+
+  const ucTag = tag.toUpperCase()
+  if (!override && TAG_DIRECTIVE_REGISTRY.has(ucTag)) {
+    throw Error(`A tag directive with the tag ${tag} has already been registered`)
+  }
+
+  TAG_DIRECTIVE_REGISTRY.set(ucTag, bind)
+}
+
 export function generateBinding (rootElement) {
   const bindings = bindElementChildren(rootElement)
   return (data) => {
@@ -44,7 +53,7 @@ export function generateBinding (rootElement) {
   }
 }
 
-function bindElementChildren (element) {
+export function bindElementChildren (element) {
   return Array.prototype.flatMap.call(element.childNodes, (childNode) => {
     switch (childNode.nodeType) {
       case Node.ELEMENT_NODE:
@@ -58,10 +67,16 @@ function bindElementChildren (element) {
 }
 
 function processElementNode (element) {
-  return [
-    bindElementAttributes(element),
-    bindElementChildren(element)
-  ].flat()
+  const tagName = element.tagName
+  if (TAG_DIRECTIVE_REGISTRY.has(tagName)) {
+    const bind = TAG_DIRECTIVE_REGISTRY.get(tagName)
+    return bind(element)
+  } else {
+    return [
+      bindElementAttributes(element),
+      bindElementChildren(element)
+    ].flat()
+  }
 }
 
 function processTextNode (textNode) {
@@ -135,10 +150,3 @@ function bindElementAttributes (element) {
     return bind(element, nameValue, value)
   })
 }
-
-// Bind default attribute binders
-registerAttributeDirective(propDirective)
-registerAttributeDirective(attrDirective)
-registerAttributeDirective(onDirective)
-registerAttributeDirective(classDirective)
-registerAttributeDirective(styleDirective)

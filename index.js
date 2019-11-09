@@ -1,11 +1,30 @@
 import Element from './src/FactorElement.js'
 import define from './src/define.js'
+import * as Template from './src/Template'
+
+import propDirective from './src/attrDirectives/prop'
+import attrDirective from './src/attrDirectives/attr'
+import onDirective from './src/attrDirectives/on'
+import classDirective from './src/attrDirectives/class'
+import styleDirective from './src/attrDirectives/style'
 import {
-  registerAttributeDirective
-} from './src/Template'
+  ifDirective,
+  unlessDirective
+} from './src/tagDirectives/if'
+
+// Bind default attribute binders
+Template.registerAttributeDirective(propDirective)
+Template.registerAttributeDirective(attrDirective)
+Template.registerAttributeDirective(onDirective)
+Template.registerAttributeDirective(classDirective)
+Template.registerAttributeDirective(styleDirective)
+
+// Bind default tag directives
+Template.registerTagDirective(ifDirective)
+Template.registerTagDirective(unlessDirective)
 
 export {
   Element,
   define,
-  registerAttributeDirective
+  Template
 }

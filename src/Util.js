@@ -94,3 +94,40 @@ export function immediately (func, ...args) {
 
   return window.setTimeout(() => func(...args), 1)
 }
+
+export function getAnimationValues (element, properties = []) {
+  // Animate translate, opacity, scale, color, backgroundColor
+  const computedStyles = window.getComputedStyle(element)
+
+  const values = {}
+  for (const property of properties) {
+    values[property] = computedStyles.getPropertyValue(property)
+  }
+
+  return values
+}
+
+export function animate (element, start, end, options) {
+  const {
+    delay = 0,
+    duration = 0,
+    easing = 'linear',
+    endDelay = 0,
+    fill = 'both',
+    reverse = false
+  } = options
+
+  const animationOptions = {
+    delay,
+    duration,
+    easing,
+    endDelay,
+    fill,
+    reverse
+  }
+
+  return element.animate([
+    start,
+    end
+  ], animationOptions)
+}

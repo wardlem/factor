@@ -39,6 +39,7 @@
     "karma-mocha-reporter": "^2.2.5",
     "karma-rollup-preprocessor": "^7.0.2",
     "mocha": "^6.2.2",
-    "rollup": "^1.26.3"
+    "rollup": "^1.26.3",
+    "web-animations-js": "^2.3.2"
   }
 }
