@@ -131,3 +131,16 @@ export function animate (element, start, end, options) {
     end
   ], animationOptions)
 }
+
+export function objectFrom (pairs) {
+  if (typeof Object.from === 'function') {
+    return Object.from(pairs)
+  }
+
+  const out = {}
+  for (const [key, value] of pairs) {
+    out[key] = value
+  }
+
+  return out
+}

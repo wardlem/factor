@@ -1,9 +1,14 @@
 import FactorElement from './FactorElement'
 import {
   setFunctionName,
-  camelToKebab,
-  isEqual
+  camelToKebab
 } from './Util'
+
+import {
+  calculateDefaultProps,
+  convertProp,
+  defineProps
+} from './Property'
 
 export default function define (name, definition = {}) {
   const {
@@ -34,6 +39,15 @@ export default function define (name, definition = {}) {
       return defaultProps
     }
 
+    static convertProp (name, value) {
+      const prop = props[name]
+      if (!prop) {
+        return value
+      }
+
+      return convertProp(prop, value)
+    }
+
     static get observedAttributes () {
       return observedAttributes
     }
@@ -54,42 +68,4 @@ export default function define (name, definition = {}) {
   }
 
   return CustomElement
-}
-
-function defineProps (proto, props) {
-  for (const [key, def] of Object.entries(props)) {
-    defineProp(proto, key, def)
-  }
-}
-
-function defineProp (proto, key, def) {
-  const lcKey = key.toLowerCase()
-  const descriptor = {
-    get () {
-      return this.get(key)
-    },
-    set (value) {
-      const currentValue = this.get(key)
-      if (!isEqual(currentValue, value)) {
-        this.set(key, value)
-        this.render()
-      }
-    }
-  }
-
-  Object.defineProperty(proto, key, descriptor)
-  // We also define the lowercase key because attributes
-  // are always converted to lowercase.
-  if (lcKey !== key) {
-    Object.defineProperty(proto, lcKey, descriptor)
-  }
-}
-
-function calculateDefaultProps (props) {
-  const defaults = {}
-  for (const [key, data] of Object.entries(props)) {
-    defaults[key] = data.default
-  }
-
-  return defaults
 }
