@@ -125,6 +125,6 @@ describe('define', function () {
     setTimeout(() => {
       expect(element.rootNode.innerHTML).to.equal('updated')
       done()
-    }, 5)
+    }, 10)
   })
 })

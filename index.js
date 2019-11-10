@@ -11,6 +11,7 @@ import {
   ifDirective,
   unlessDirective
 } from './src/tagDirectives/if'
+import forDirective from './src/tagDirectives/for'
 
 // Bind default attribute binders
 Template.registerAttributeDirective(propDirective)
@@ -22,6 +23,7 @@ Template.registerAttributeDirective(styleDirective)
 // Bind default tag directives
 Template.registerTagDirective(ifDirective)
 Template.registerTagDirective(unlessDirective)
+Template.registerTagDirective(forDirective)
 
 export {
   Element,

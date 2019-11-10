@@ -103,7 +103,7 @@ function processTextNode (textNode) {
       // Make empty by default and set the content when rendered
       const boundTextNode = new Text('')
       bindings.push((data) => {
-        const value = getPath(data, path) || ''
+        const value = getPath(data, path)
         const textValue = value == null ? '' : String(value)
         if (!isEqual(textValue, boundTextNode.data)) {
           boundTextNode.data = textValue

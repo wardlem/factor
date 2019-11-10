@@ -43,6 +43,13 @@ describe('Template', function () {
       binding({ person: 'Marianne' })
       expect(container.innerHTML).to.equal('<div><p>Hello Marianne</p></div>')
     })
+
+    it('renders 0', function () {
+      const { binding, container } = bindAndContain('Hello {{person}}')
+      expect(container.innerHTML).to.equal('Hello ')
+      binding({ person: 0 })
+      expect(container.innerHTML).to.equal('Hello 0')
+    })
   })
 
   describe('prop:', function () {
@@ -696,6 +703,7 @@ describe('Template', function () {
           expect(end - start).to.be.below(1100)
           const item = container.querySelector('#item')
           expect(item).to.not.exist
+          document.body.removeChild(container)
           done()
         })
       }
@@ -745,6 +753,544 @@ describe('Template', function () {
       expect(container.querySelector('p')).to.exist
       expect(container.querySelector('p').something).to.equal('updated')
       expect(container.querySelector('p').innerText).to.equal('Hello Obi!')
+    })
+  })
+
+  describe('for', function () {
+    it('does not show any values initially', function () {
+      const { container } = bindAndContain('<for values="items" as="item"><p>{{index}}: {{item}}</p></for>')
+      expect(container.querySelector('p')).to.not.exist
+    })
+
+    it('renders a list of items', function () {
+      const { container, binding } = bindAndContain('<for values="items" as="item"><p>{{index}}: {{item}}</p></for>')
+      binding({
+        items: ['zero', 'one', 'two']
+      })
+
+      const children = container.querySelectorAll('p')
+      expect(children.length).to.equal(3)
+      expect(children[0].innerText).to.equal('0: zero')
+      expect(children[1].innerText).to.equal('1: one')
+      expect(children[2].innerText).to.equal('2: two')
+    })
+
+    it('appends to an existing list', function () {
+      const { container, binding } = bindAndContain('<for values="items" as="item"><p>{{index}}: {{item}}</p></for>')
+      binding({
+        items: ['one']
+      })
+
+      const children1 = container.querySelectorAll('p')
+      expect(children1.length).to.equal(1)
+      expect(children1[0].innerText).to.equal('0: one')
+
+      binding({
+        items: ['one', 'four']
+      })
+
+      const children2 = container.querySelectorAll('p')
+      expect(children2.length).to.equal(2)
+      expect(children2[0].innerText).to.equal('0: one')
+      expect(children2[1].innerText).to.equal('1: four')
+      expect(children1[0]).to.equal(children2[0])
+
+      binding({
+        items: ['zero', 'one', 'four']
+      })
+
+      const children3 = container.querySelectorAll('p')
+      expect(children3.length).to.equal(3)
+      expect(children3[0].innerText).to.equal('0: zero')
+      expect(children3[1].innerText).to.equal('1: one')
+      expect(children3[2].innerText).to.equal('2: four')
+      expect(children2[0]).to.equal(children3[0])
+      expect(children2[1]).to.equal(children3[1])
+
+      binding({
+        items: ['zero', 'one', 'two', 'three', 'four']
+      })
+
+      const children4 = container.querySelectorAll('p')
+      expect(children4.length).to.equal(5)
+      expect(children4[0].innerText).to.equal('0: zero')
+      expect(children4[1].innerText).to.equal('1: one')
+      expect(children4[2].innerText).to.equal('2: two')
+      expect(children4[3].innerText).to.equal('3: three')
+      expect(children4[4].innerText).to.equal('4: four')
+      expect(children3[0]).to.equal(children4[0])
+      expect(children3[1]).to.equal(children4[1])
+      expect(children3[2]).to.equal(children4[2])
+    })
+
+    it('removes a child', function () {
+      const { container, binding } = bindAndContain('<for values="items" as="item"><p>{{index}}: {{item}}</p></for>')
+      binding({
+        items: ['zero', 'one', 'two', 'three', 'four']
+      })
+
+      const children1 = container.querySelectorAll('p')
+      expect(children1.length).to.equal(5)
+      expect(children1[0].innerText).to.equal('0: zero')
+      expect(children1[1].innerText).to.equal('1: one')
+      expect(children1[2].innerText).to.equal('2: two')
+      expect(children1[3].innerText).to.equal('3: three')
+      expect(children1[4].innerText).to.equal('4: four')
+
+      binding({
+        items: ['zero', 'one', 'three', 'four']
+      })
+
+      const children2 = container.querySelectorAll('p')
+      expect(children2.length).to.equal(4)
+      expect(children2[0].innerText).to.equal('0: zero')
+      expect(children2[1].innerText).to.equal('1: one')
+      expect(children2[2].innerText).to.equal('2: three')
+      expect(children2[3].innerText).to.equal('3: four')
+
+      binding({
+        items: ['one', 'three', 'four']
+      })
+
+      const children3 = container.querySelectorAll('p')
+      expect(children3.length).to.equal(3)
+      expect(children3[0].innerText).to.equal('0: one')
+      expect(children3[1].innerText).to.equal('1: three')
+      expect(children3[2].innerText).to.equal('2: four')
+
+      binding({
+        items: []
+      })
+
+      const children5 = container.querySelectorAll('p')
+      expect(children5.length).to.equal(0)
+    })
+
+    it('reorders a list of items based on a key path', function () {
+      const { container, binding } = bindAndContain('<for values="items" as="item" key-path="id"><p>{{item.id}}: {{item.name}}</p></for>')
+      binding({
+        items: [
+          { id: 'v', name: 'Vader' },
+          { id: 's', name: 'Sidius' },
+          { id: 'p', name: 'Plagueis' }
+        ]
+      })
+
+      const children1 = container.querySelectorAll('p')
+      expect(children1.length).to.equal(3)
+      expect(children1[0].innerText).to.equal('v: Vader')
+      expect(children1[1].innerText).to.equal('s: Sidius')
+      expect(children1[2].innerText).to.equal('p: Plagueis')
+
+      binding({
+        items: [
+          { id: 'p', name: 'Unknown' },
+          { id: 's', name: 'Palpatine' },
+          { id: 'v', name: 'Anakin' }
+        ]
+      })
+
+      const children2 = container.querySelectorAll('p')
+      expect(children2.length).to.equal(3)
+      expect(children2[0].innerText).to.equal('p: Unknown')
+      expect(children2[1].innerText).to.equal('s: Palpatine')
+      expect(children2[2].innerText).to.equal('v: Anakin')
+
+      expect(children1[0]).to.equal(children2[2])
+      expect(children1[1]).to.equal(children2[1])
+      expect(children1[2]).to.equal(children2[0])
+    })
+
+    it('reorders a list of items based on a key function', function () {
+      const { container, binding } = bindAndContain('<for values="items" as="item" key-function="getId"><p>{{item.id}}: {{item.name}}</p></for>')
+      function getId (item) {
+        return item.id
+      }
+
+      binding({
+        getId,
+        items: [
+          { id: 'v', name: 'Vader' },
+          { id: 's', name: 'Sidius' },
+          { id: 'p', name: 'Plagueis' }
+        ]
+      })
+
+      const children1 = container.querySelectorAll('p')
+      expect(children1.length).to.equal(3)
+      expect(children1[0].innerText).to.equal('v: Vader')
+      expect(children1[1].innerText).to.equal('s: Sidius')
+      expect(children1[2].innerText).to.equal('p: Plagueis')
+
+      binding({
+        getId,
+        items: [
+          { id: 'p', name: 'Unknown' },
+          { id: 's', name: 'Palpatine' },
+          { id: 'v', name: 'Anakin' }
+        ]
+      })
+
+      const children2 = container.querySelectorAll('p')
+      expect(children2.length).to.equal(3)
+      expect(children2[0].innerText).to.equal('p: Unknown')
+      expect(children2[1].innerText).to.equal('s: Palpatine')
+      expect(children2[2].innerText).to.equal('v: Anakin')
+
+      expect(children1[0]).to.equal(children2[2])
+      expect(children1[1]).to.equal(children2[1])
+      expect(children1[2]).to.equal(children2[0])
+    })
+
+    it('renders an object of items', function () {
+      const { container, binding } = bindAndContain('<for values="items" as="item"><p>{{index}}: {{item}}</p></for>')
+      binding({
+        items: {
+          first: 'one',
+          second: 'two',
+          third: 'three'
+        }
+      })
+
+      const children = container.querySelectorAll('p')
+      expect(children.length).to.equal(3)
+      expect(children[0].innerText).to.equal('first: one')
+      expect(children[1].innerText).to.equal('second: two')
+      expect(children[2].innerText).to.equal('third: three')
+    })
+
+    it('animates when items are reordered and the animate flag is true', function (done) {
+      this.timeout(3000)
+      const { container, binding } = bindAndContain(`
+        <style>
+          #container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border: 2px dashed gray;
+            width: 128px;
+            height: 64px;
+            box-sizing: border-box;
+          }
+          .enter {
+            transform: translateY(-64px);
+            opacity: 0;
+          }
+          .exit {
+            transform: translateY(64px);
+            opacity: 0;
+          }
+          .box {
+            width: 32px;
+            height: 32px;
+            border: 2px solid black;
+            box-sizing: border-box;
+          }
+          #one {
+            background: blue;
+          }
+          #two {
+            background: yellow;
+          }
+          #three {
+            background: red;
+          }
+        </style>
+        <div id="container">
+          <for
+            values="items"
+            as="item"
+            key-path="id"
+            enter-class="enter"
+            animate><div class="box" @id="item.id">{{item.number}}</div></for>
+        </div>
+      `)
+
+      document.body.appendChild(container)
+
+      binding({
+        items: [
+          { id: 'one', value: 1 },
+          { id: 'two', value: 2 },
+          { id: 'three', value: 3 }
+        ]
+      })
+
+      setTimeout(() => {
+        binding({
+          items: [
+            { id: 'three', value: 3 },
+            { id: 'one', value: 1 },
+            { id: 'two', value: 2 }
+          ]
+        })
+
+        setTimeout(() => {
+          document.body.removeChild(container)
+          done()
+        }, 1000)
+      }, 1000)
+    })
+
+    it('animates when items are added and the animate flag is true', function (done) {
+      this.timeout(3000)
+      const { container, binding } = bindAndContain(`
+        <style>
+          #container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border: 2px dashed gray;
+            width: 128px;
+            height: 64px;
+            box-sizing: border-box;
+          }
+          .enter {
+            transform: translateY(-64px);
+            opacity: 0;
+          }
+          .exit {
+            transform: translateY(64px);
+            opacity: 0;
+          }
+          .box {
+            width: 32px;
+            height: 32px;
+            border: 2px solid black;
+            box-sizing: border-box;
+          }
+          #one {
+            background: blue;
+          }
+          #two {
+            background: yellow;
+          }
+          #three {
+            background: red;
+          }
+          #four {
+            background: green;
+          }
+        </style>
+        <div id="container">
+          <for
+            values="items"
+            as="item"
+            key-path="id"
+            enter-class="enter"
+            exit-class="exit"
+            animate><div class="box" @id="item.id">{{item.number}}</div></for>
+        </div>
+      `)
+
+      document.body.appendChild(container)
+
+      binding({
+        items: [
+          { id: 'one', value: 1 },
+          { id: 'two', value: 2 }
+        ]
+      })
+
+      setTimeout(() => {
+        binding({
+          items: [
+            { id: 'one', value: 1 },
+            { id: 'three', value: 3 },
+            { id: 'two', value: 2 }
+          ]
+        })
+
+        setTimeout(() => {
+          document.body.removeChild(container)
+          done()
+        }, 1000)
+      }, 1000)
+    })
+
+    it('animates when items are removed and the animate flag is true', function (done) {
+      this.timeout(10000)
+      const { container, binding } = bindAndContain(`
+        <style>
+          #container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border: 2px dashed gray;
+            width: 128px;
+            height: 64px;
+            box-sizing: border-box;
+            position: relative;
+          }
+          .enter {
+            transform: translateY(-64px) rotate(45deg);
+            opacity: 0;
+          }
+          .exit {
+            transform: translateY(64px) rotate(-45deg);
+            opacity: 0;
+          }
+          .box {
+            width: 32px;
+            height: 32px;
+            border: 2px solid black;
+            box-sizing: border-box;
+          }
+          #one {
+            background: blue;
+          }
+          #two {
+            background: yellow;
+          }
+          #three {
+            background: red;
+          }
+        </style>
+        <div id="container">
+          <for
+            values="items"
+            as="item"
+            key-path="id"
+            enter-class="enter"
+            exit-class="exit"
+            exit-duration="200"
+            animate-easing="ease-in"
+            animate><div class="box" @id="item.id">{{item.number}}</div></for>
+        </div>
+      `)
+
+      document.body.appendChild(container)
+
+      binding({
+        items: [
+          { id: 'one', value: 1 },
+          { id: 'two', value: 2 },
+          { id: 'three', value: 3 }
+        ]
+      })
+
+      setTimeout(() => {
+        binding({
+          items: [
+            { id: 'one', value: 1 },
+            { id: 'three', value: 3 }
+          ]
+        })
+
+        setTimeout(() => {
+          document.body.removeChild(container)
+          done()
+        }, 1000)
+      }, 1000)
+    })
+
+    it('animates all elements within the div', function (done) {
+      this.timeout(10000)
+      const { container, binding } = bindAndContain(`
+        <style>
+          #container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border: 2px dashed gray;
+            width: 256px;
+            height: 64px;
+            box-sizing: border-box;
+          }
+          .enter.first {
+            transform: translateY(-64px) translateX(64px) scale(0.1) rotate(180deg);
+            opacity: 0;
+          }
+          .enter.second {
+            transform: translateY(64px) translateX(-64px) scale(0.1) rotate(180deg);
+          }
+          .exit.first {
+            transform: translateY(64px) translateX(64px) scale(0.1) rotate(180deg);
+            opacity: 0;
+          }
+          .exit.second {
+            transform: translateY(-64px) translateX(-64px) scale(0.1) rotate(180deg);
+          }
+          .box {
+            width: 32px;
+            height: 32px;
+            border: 2px solid black;
+            box-sizing: border-box;
+          }
+          .second {
+            border-style: dashed;
+          }
+          #one-a, #one-b {
+            background: blue;
+          }
+          #two-a, #two-b {
+            background: yellow;
+          }
+          #three-a, #three-b {
+            background: red;
+          }
+          #four-a, #four-b {
+            background: green;
+          }
+        </style>
+        <div id="container">
+          <for
+            values="items"
+            as="item"
+            key-path="id"
+            enter-class="enter"
+            exit-class="exit"
+            animate>
+            <div class="box first" @id="item.id">{{item.number}}a</div>
+            <div class="box second" @id="item.id2">{{item.number}}b</div>
+
+            </for>
+        </div>
+      `)
+
+      document.body.appendChild(container)
+
+      binding({
+        items: [
+          { id: 'one-a', id2: 'one-b', value: 1 },
+          { id: 'two-a', id2: 'two-b', value: 2 },
+          { id: 'three-a', id2: 'three-b', value: 3 }
+        ]
+      })
+
+      setTimeout(() => {
+        binding({
+          items: [
+            { id: 'two-a', id2: 'two-b', value: 2 },
+            { id: 'one-a', id2: 'one-b', value: 1 },
+            { id: 'three-a', id2: 'three-b', value: 3 }
+          ]
+        })
+
+        setTimeout(() => {
+          binding({
+            items: [
+              { id: 'two-a', id2: 'two-b', value: 2 },
+              { id: 'one-a', id2: 'one-b', value: 1 }
+            ]
+          })
+
+          setTimeout(() => {
+            binding({
+              items: [
+                { id: 'two-a', id2: 'two-b', value: 2 },
+                { id: 'four-a', id2: 'four-b', value: 4 },
+                { id: 'one-a', id2: 'one-b', value: 1 }
+              ]
+            })
+
+            setTimeout(() => {
+              document.body.removeChild(container)
+              done()
+            }, 1000)
+          }, 1000)
+        }, 1000)
+      }, 1000)
     })
   })
 })
