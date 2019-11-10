@@ -82,6 +82,20 @@ export default class FactorElement extends HTMLElement {
     }
   }
 
+  action (type, data = {}) {
+    const actions = this._actions
+    if (typeof actions[type] !== 'function') {
+      return
+    }
+
+    // Always trigger actions asynchronously
+    return new Promise((resolve) => {
+      immediately(() => {
+        resolve(actions[type](this.state, data, this))
+      })
+    })
+  }
+
   get (key) {
     return getPath(this.state, key)
   }
@@ -106,6 +120,10 @@ export default class FactorElement extends HTMLElement {
 
   get _transforms () {
     return this.constructor.transforms || {}
+  }
+
+  get _actions () {
+    return this.constructor.actions || {}
   }
 
   _defaultProps () {

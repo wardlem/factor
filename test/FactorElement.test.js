@@ -72,4 +72,50 @@ describe('FactorElement', function () {
       expect(element.state).to.deep.equal({ value: 'ABC', thing: 7, thing2: 8 })
     })
   })
+
+  describe('.action', function () {
+    it('triggers a defined action', async function () {
+      const symbol = Symbol('test action')
+      class Test extends Element {}
+      Test.actions = {
+        test: (state, data, ctx) => {
+          return new Promise((resolve) => {
+            ctx.transform('test', data + 4)
+
+            setTimeout(() => {
+              resolve('ok')
+            }, 10)
+          })
+        },
+        [symbol]: (state, data, ctx) => {
+          return new Promise((resolve) => {
+            ctx.transform(symbol, data + 5)
+
+            setTimeout(() => {
+              resolve('yup')
+            }, 10)
+          })
+        }
+      }
+
+      Test.transforms = {
+        test: (state, data) => {
+          return { ...state, tested: data }
+        },
+        [symbol]: (state, data) => {
+          return { ...state, symboled: data }
+        }
+      }
+
+      window.customElements.define('test-base-element-action', Test)
+      const element = document.createElement('test-base-element-action')
+      expect(element.state).to.deep.equal({})
+      const testResult = await element.action('test', 2)
+      expect(testResult).to.equal('ok')
+      expect(element.state).to.deep.equal({ tested: 6 })
+      const symbolResult = await element.action(symbol, 18)
+      expect(symbolResult).to.equal('yup')
+      expect(element.state).to.deep.equal({ tested: 6, symboled: 23 })
+    })
+  })
 })

@@ -1,5 +1,11 @@
 import { define, Element } from '../Factor.js'
 
+function waitFor (time) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, time)
+  })
+}
+
 describe('define', function () {
   it('creates classes that extend Factor.Element', function () {
     const FirstTestElement = define('FirstTestElement', { register: false })
@@ -389,7 +395,63 @@ describe('define', function () {
       setTimeout(() => {
         expect(element.rootNode.textContent).to.equal('16')
         done()
-      }, 10)
-    }, 10)
+      }, 15)
+    }, 15)
+  })
+
+  it('defines action functions', async function () {
+    const symbol = Symbol('test action')
+    const actions = {
+      test: (state, data, ctx) => {
+        return new Promise((resolve) => {
+          ctx.transform('test', data + 4)
+
+          setTimeout(() => {
+            resolve('ok')
+          }, 10)
+        })
+      },
+      [symbol]: (state, data, ctx) => {
+        return new Promise((resolve) => {
+          ctx.transform(symbol, data + 5)
+
+          setTimeout(() => {
+            resolve('yup')
+          }, 10)
+        })
+      }
+    }
+
+    const transforms = {
+      init: (state, data) => {
+        return {
+          ...state,
+          tested: 1,
+          symboled: 2
+        }
+      },
+      test: (state, data) => {
+        return { ...state, tested: data }
+      },
+      [symbol]: (state, data) => {
+        return { ...state, symboled: data }
+      }
+    }
+
+    const template = '{{tested}} / {{symboled}}'
+
+    const ActionTest1 = define('ActionTest1', { transforms, actions, template })
+    const element = document.createElement(ActionTest1.tag)
+    expect(element.rootNode.textContent).to.equal('1 / 2')
+
+    const testResult = await element.action('test', 2)
+    expect(testResult).to.equal('ok')
+    await waitFor(10)
+    expect(element.rootNode.textContent).to.equal('6 / 2')
+
+    const symbolResult = await element.action(symbol, 18)
+    expect(symbolResult).to.equal('yup')
+    await waitFor(10)
+    expect(element.rootNode.textContent).to.equal('6 / 23')
   })
 })
