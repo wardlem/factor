@@ -129,6 +129,22 @@ describe('define', function () {
     expect(element.dateProp).to.deep.equal(new Date(0))
   })
 
+  it('allows the attribute key to be overriden', function () {
+    const props = {
+      testProp: {
+        default: 'initial',
+        attribute: 'alternate-attribute'
+      }
+    }
+
+    const DefinePropertyTestFive = define('DefinePropertyTestFive', { props })
+
+    const element = document.createElement(DefinePropertyTestFive.tag)
+    expect(element.testProp).to.equal('initial')
+    element.setAttribute('alternate-attribute', 'updated')
+    expect(element.testProp).to.equal('updated')
+  })
+
   it('dynamically updates the view when the property changes', function (done) {
     const props = {
       testProp: { default: 'initial' }

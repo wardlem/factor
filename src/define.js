@@ -22,8 +22,8 @@ export default function define (name, definition = {}) {
   templateElement.innerHTML = template
 
   const defaultProps = calculateDefaultProps(props)
-  const observedAttributes = Object.keys(props).map(
-    (name) => name.toLowerCase()
+  const observedAttributes = Object.entries(props).map(
+    ([name, prop]) => prop.attribute || name.toLowerCase()
   )
 
   class CustomElement extends FactorElement {

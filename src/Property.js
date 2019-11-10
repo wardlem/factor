@@ -10,7 +10,7 @@ export function defineProps (proto, props) {
 }
 
 function defineProp (proto, key, def) {
-  const lcKey = key.toLowerCase()
+  const attribute = def.attribute || key.toLowerCase()
   const descriptor = {
     get () {
       return this.get(key)
@@ -31,8 +31,8 @@ function defineProp (proto, key, def) {
   Object.defineProperty(proto, key, descriptor)
   // We also define the lowercase key because attributes
   // are always converted to lowercase.
-  if (lcKey !== key) {
-    Object.defineProperty(proto, lcKey, descriptor)
+  if (attribute !== key) {
+    Object.defineProperty(proto, attribute, descriptor)
   }
 }
 
