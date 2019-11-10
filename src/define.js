@@ -15,6 +15,7 @@ export default function define (name, definition = {}) {
     tag = camelToKebab(name),
     template = '',
     props = {},
+    handlers = {},
     register = true
   } = definition
 
@@ -46,6 +47,10 @@ export default function define (name, definition = {}) {
       }
 
       return convertProp(prop, value)
+    }
+
+    static get handlers () {
+      return handlers
     }
 
     static get observedAttributes () {

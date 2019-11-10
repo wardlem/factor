@@ -5,7 +5,8 @@ import {
 import {
   getPath,
   setPath,
-  immediately
+  immediately,
+  objectFrom
 } from './Util'
 
 export default class FactorElement extends HTMLElement {
@@ -14,6 +15,7 @@ export default class FactorElement extends HTMLElement {
     this.attachShadow({ mode: 'open' })
     this._initState()
     this._initView()
+    this._handlers = this._generateHandlers()
     this._render()
     this._renderFrame = null
   }
@@ -32,7 +34,9 @@ export default class FactorElement extends HTMLElement {
   }
 
   _initState () {
-    this.state = this._defaultProps()
+    this.state = {
+      ...this._defaultProps()
+    }
   }
 
   _initView () {
@@ -48,7 +52,7 @@ export default class FactorElement extends HTMLElement {
   }
 
   _render () {
-    this._binding(this.state)
+    this._binding(this.viewData)
   }
 
   render () {
@@ -68,6 +72,20 @@ export default class FactorElement extends HTMLElement {
 
   set (key, value) {
     this.state = setPath(this.state, key, value)
+  }
+
+  get viewData () {
+    return {
+      ...this.state,
+      ...this._handlers
+    }
+  }
+
+  _generateHandlers () {
+    const handlers = this.constructor.handlers || {}
+    return objectFrom(Object.entries(handlers).map(
+      ([key, handle]) => [key, (event) => handle(event, this)]
+    ))
   }
 
   _defaultProps () {

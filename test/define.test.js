@@ -329,4 +329,24 @@ describe('define', function () {
     element.dateProp = 1573402593278
     expect(element.dateProp).to.deep.equal(new Date(1573402593278))
   })
+
+  it('allows event handlers to be defined', function (done) {
+    const handlers = {
+      customHandler: (event, ctx) => {
+        expect(event).to.be.instanceof(Event)
+        expect(event.type).to.equal('thing')
+        expect(typeof ctx).to.equal('object')
+        done()
+      }
+    }
+
+    const template = '<div on:thing="customHandler"></div>'
+
+    const HandlerTest1 = define('HandlerTest1', { handlers, template })
+
+    const element = document.createElement(HandlerTest1.tag)
+
+    const event = new Event('thing')
+    element.rootNode.querySelector('div').dispatchEvent(event)
+  })
 })
