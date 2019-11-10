@@ -16,6 +16,7 @@ export default function define (name, definition = {}) {
     template = '',
     props = {},
     handlers = {},
+    transforms = {},
     register = true
   } = definition
 
@@ -51,6 +52,10 @@ export default function define (name, definition = {}) {
 
     static get handlers () {
       return handlers
+    }
+
+    static get transforms () {
+      return transforms
     }
 
     static get observedAttributes () {

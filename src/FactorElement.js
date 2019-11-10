@@ -6,7 +6,8 @@ import {
   getPath,
   setPath,
   immediately,
-  objectFrom
+  objectFrom,
+  isEqual
 } from './Util'
 
 export default class FactorElement extends HTMLElement {
@@ -37,6 +38,8 @@ export default class FactorElement extends HTMLElement {
     this.state = {
       ...this._defaultProps()
     }
+
+    this.transform('init', {}, false)
   }
 
   _initView () {
@@ -66,6 +69,19 @@ export default class FactorElement extends HTMLElement {
     })
   }
 
+  transform (type, data = {}, doRender = true) {
+    const transforms = this._transforms
+    if (typeof transforms[type] !== 'function') {
+      return
+    }
+
+    const prevState = this.newState
+    this.state = transforms[type](this.state, data)
+    if (doRender && !isEqual(prevState, this.state)) {
+      this.render()
+    }
+  }
+
   get (key) {
     return getPath(this.state, key)
   }
@@ -86,6 +102,10 @@ export default class FactorElement extends HTMLElement {
     return objectFrom(Object.entries(handlers).map(
       ([key, handle]) => [key, (event) => handle(event, this)]
     ))
+  }
+
+  get _transforms () {
+    return this.constructor.transforms || {}
   }
 
   _defaultProps () {

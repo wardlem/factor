@@ -42,4 +42,34 @@ describe('FactorElement', function () {
     const element = document.createElement('test-template-attached-on-creation')
     expect(element.rootNode.innerHTML).to.equal('<p>just testin</p>')
   })
+
+  describe('.transform', function () {
+    it('transforms an element\'s state', function () {
+      class Test extends Element {}
+      const symbol = Symbol('test symbol')
+      Test.transforms = {
+        test (state, data) {
+          return {
+            ...state,
+            thing: data.thing + 5
+          }
+        },
+        [symbol] (state, data) {
+          return {
+            ...state,
+            thing2: data.thing + 6
+          }
+        }
+      }
+
+      window.customElements.define('test-base-element-transform', Test)
+      const element = document.createElement('test-base-element-transform')
+      element.set('value', 'ABC')
+      expect(element.state).to.deep.equal({ value: 'ABC' })
+      element.transform('test', { thing: 2 })
+      expect(element.state).to.deep.equal({ value: 'ABC', thing: 7 })
+      element.transform(symbol, { thing: 2 })
+      expect(element.state).to.deep.equal({ value: 'ABC', thing: 7, thing2: 8 })
+    })
+  })
 })

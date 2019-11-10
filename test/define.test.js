@@ -183,7 +183,7 @@ describe('define', function () {
     setTimeout(() => {
       expect(element.rootNode.innerHTML).to.equal('updated!!')
       done()
-    }, 10)
+    }, 15)
   })
 
   it('converts a property to a string if the type is String', function () {
@@ -348,5 +348,48 @@ describe('define', function () {
 
     const event = new Event('thing')
     element.rootNode.querySelector('div').dispatchEvent(event)
+  })
+
+  it('defines transform functions', function (done) {
+    const symbol = Symbol('test transform')
+    const transforms = {
+      init: (state) => {
+        return {
+          ...state,
+          value: 15
+        }
+      },
+      test: (state, { add }) => {
+        return {
+          ...state,
+          value: state.value + add
+        }
+      },
+      [symbol]: (state, { minus }) => {
+        return {
+          ...state,
+          value: state.value - minus
+        }
+      }
+    }
+
+    const template = '{{value}}'
+
+    const TransformTest1 = define('TransformTest1', { transforms, template })
+
+    const element = document.createElement(TransformTest1.tag)
+
+    expect(element.rootNode.textContent).to.equal('15')
+    element.transform('test', { add: 5 })
+    expect(element.get('value')).to.equal(20)
+    setTimeout(() => {
+      expect(element.rootNode.textContent).to.equal('20')
+      element.transform(symbol, { minus: 4 })
+      expect(element.get('value')).to.equal(16)
+      setTimeout(() => {
+        expect(element.rootNode.textContent).to.equal('16')
+        done()
+      }, 10)
+    }, 10)
   })
 })
