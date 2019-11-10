@@ -13,6 +13,11 @@ import {
 } from './src/tagDirectives/if'
 import forDirective from './src/tagDirectives/for'
 
+import {
+  eventToTransform,
+  eventToAction
+} from './src/eventHelpers'
+
 // Bind default attribute binders
 Template.registerAttributeDirective(propDirective)
 Template.registerAttributeDirective(attrDirective)
@@ -28,5 +33,7 @@ Template.registerTagDirective(forDirective)
 export {
   Element,
   define,
-  Template
+  Template,
+  eventToTransform,
+  eventToAction
 }
