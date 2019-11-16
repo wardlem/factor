@@ -1,4 +1,44 @@
-Factor
-======
+= Factor
 
-Factor is a light-weight library for building reactive web components.
+Factor is a light-weight library for building functionally-styled, reactive web components.
+
+== Installation
+
+The library can be installed using NPM.
+
+[source,sh]
+----
+npm install --save @potient/factor
+----
+
+It can then be imported as an es6 module.
+
+[source,javascript]
+----
+import * as Factor from '@potient/factor'
+----
+
+== Usage
+
+Factor can be used to define a custom element.
+
+[source,html]
+----
+<my-greeter name="Everyone"></my-greeter>
+<script type="module">
+  import { define } from '@potient/factor/Factor.js'
+  const MyGreeter = define('MyGreeter', {
+    props: {
+      name: { type: String, default: 'World' }
+    },
+    template: '<p>Hello, {{name}}!</p>'
+  })
+</script>
+----
+
+More documentation is on the way.
+
+== Contributing
+
+
+If you would like to contribute, pull requests are welcome.
