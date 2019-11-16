@@ -137,16 +137,70 @@ function bindElementAttributes (element) {
     const parts = name.split(':', 2)
     if (parts.length === 1) {
       // TODO: Process as interpolated string
-      return []
+      return processAttribute(element, name)
     }
 
     const [prefix, nameValue] = parts
     if (!ATTR_PREFIX_REGISTRY.has(prefix)) {
-      return []
+      return processAttribute(element, name)
     }
 
     const bind = ATTR_PREFIX_REGISTRY.get(prefix)
     element.removeAttribute(name)
     return bind(element, nameValue, value)
   })
+}
+
+function processAttribute (element, name) {
+  const value = element.getAttribute(name)
+  const parts = value.split(/\{\{([^}]+)\}\}/)
+  if (parts.length === 1) {
+    return []
+  }
+
+  const boundParts = []
+  for (let index = 0; index < parts.length; index += 1) {
+    const part = parts[index]
+    if (index % 2 === 0) {
+      // This is a static portion of the template.
+      if (part !== '') {
+        boundParts.push(part)
+      }
+    } else {
+      // This is a dynamic portion of the template.
+      const path = part.trim()
+
+      // Make empty by default and set the content when rendered
+      boundParts.push((data) => {
+        const value = getPath(data, path)
+        if (value == null) {
+          return ''
+        }
+
+        return String(value)
+      })
+    }
+  }
+
+  element.setAttribute(name, boundParts.map((part) => {
+    if (typeof part === 'string') {
+      return part
+    }
+
+    return ''
+  }).join(''))
+
+  return function interpolateAttribute (data) {
+    const value = boundParts.map((part) => {
+      if (typeof part === 'string') {
+        return part
+      }
+
+      return part(data)
+    }).join('')
+
+    if (!isEqual(value, element.getAttribute(name))) {
+      element.setAttribute(name, value)
+    }
+  }
 }

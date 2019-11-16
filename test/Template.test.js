@@ -37,6 +37,13 @@ describe('Template', function () {
       expect(container.innerHTML).to.equal('Hello George')
     })
 
+    it('dynamically updates an interpolated attribute when the binding is called', function () {
+      const { binding, container } = bindAndContain('<div id="thing-{{id}}"></div>')
+      expect(container.innerHTML).to.equal('<div id="thing-"></div>')
+      binding({ id: 12 })
+      expect(container.innerHTML).to.equal('<div id="thing-12"></div>')
+    })
+
     it('binds nested child elements', function () {
       const { binding, container } = bindAndContain('<div><p>Hello {{person}}</p></div>')
       expect(container.innerHTML).to.equal('<div><p>Hello </p></div>')
