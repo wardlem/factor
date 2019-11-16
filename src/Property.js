@@ -21,8 +21,17 @@ function defineProp (proto, key, def) {
       if (typeof this.constructor.convertProp === 'function') {
         value = this.constructor.convertProp(key, value)
       }
+
       if (!isEqual(currentValue, value)) {
         this.set(key, value)
+        if (def.transform) {
+          this.transform(def.transform, value)
+        }
+
+        if (def.action) {
+          this.action(def.action, value)
+        }
+
         this.render()
       }
     }

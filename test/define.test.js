@@ -6,7 +6,7 @@ function waitFor (time) {
   })
 }
 
-describe.only('define', function () {
+describe('define', function () {
   it('creates classes that extend Factor.Element', function () {
     const FirstTestElement = define('FirstTestElement', { register: false })
     expect(Object.prototype.isPrototypeOf.call(Element.prototype, FirstTestElement.prototype)).to.equal(true)
@@ -334,6 +334,62 @@ describe.only('define', function () {
     expect(element.dateProp).to.deep.equal(new Date('2019-01-02T12:12:12.000Z'))
     element.dateProp = 1573402593278
     expect(element.dateProp).to.deep.equal(new Date(1573402593278))
+  })
+
+  it('allows prop changes to trigger transforms', function () {
+    const props = {
+      value: { type: Number, default: 4, transform: 'double' }
+    }
+
+    const transforms = {
+      double: (state) => {
+        return {
+          ...state,
+          value: state.value * 2
+        }
+      }
+    }
+
+    const PropTransformTest = define('PropTransformTest', { props, transforms })
+    const element = document.createElement(PropTransformTest.tag)
+    expect(element.value).to.equal(4)
+    element.value = 5
+    expect(element.value).to.equal(10)
+  })
+
+  it('allows prop changes to trigger actions', function (done) {
+    const props = {
+      value: { type: Number, default: 4, action: 'double' }
+    }
+
+    const transforms = {
+      add: (state, data) => {
+        return {
+          ...state,
+          value: data * 2
+        }
+      }
+    }
+
+    const actions = {
+      double: (state, data, ctx) => {
+        ctx.transform('add', data)
+      }
+    }
+
+    const PropActionTest = define('PropActionTest', {
+      props,
+      transforms,
+      actions
+    })
+    const element = document.createElement(PropActionTest.tag)
+    expect(element.value).to.equal(4)
+    element.value = 5
+    expect(element.value).to.equal(5)
+    setTimeout(() => {
+      expect(element.value).to.equal(10)
+      done()
+    }, 50)
   })
 
   it('allows event handlers to be defined', function (done) {
