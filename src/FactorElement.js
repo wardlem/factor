@@ -6,7 +6,6 @@ import {
   getPath,
   setPath,
   immediately,
-  objectFrom,
   isEqual
 } from './Util'
 
@@ -14,9 +13,9 @@ export default class FactorElement extends HTMLElement {
   constructor () {
     super()
     this.attachShadow({ mode: 'open' })
+    this._dataProto = buildDataProto(this, this._handlers, this._calculations)
     this._initState()
     this._initView()
-    this._handlers = this._generateHandlers()
     this._render()
     this._renderFrame = null
   }
@@ -107,15 +106,8 @@ export default class FactorElement extends HTMLElement {
   get viewData () {
     return {
       ...this.state,
-      ...this._handlers
+      __proto__: this._dataProto
     }
-  }
-
-  _generateHandlers () {
-    const handlers = this.constructor.handlers || {}
-    return objectFrom(Object.entries(handlers).map(
-      ([key, handle]) => [key, (event) => handle(event, this)]
-    ))
   }
 
   get _transforms () {
@@ -126,7 +118,55 @@ export default class FactorElement extends HTMLElement {
     return this.constructor.actions || {}
   }
 
+  get _handlers () {
+    return this.constructor.handlers || {}
+  }
+
+  get _calculations () {
+    return this.constructor.calculations || {}
+  }
+
   _defaultProps () {
     return this.constructor.defaultProps || {}
   }
+}
+
+const resolving = Symbol('Factor/resolving')
+function buildDataProto (element, handlers, calculations) {
+  const cache = new WeakMap()
+  const proto = {}
+  for (const [key, calculate] of Object.entries(calculations)) {
+    Object.defineProperty(proto, key, {
+      get: function () {
+        let cached = cache.get(this)
+        if (cached == null) {
+          cached = {}
+          cache.set(this, cached)
+        }
+
+        if (cached[key] === resolving) {
+          // Circular calculation...prevent an infinite loop
+          throw Error(`Circular calculation detected for key ${key}`)
+        } else if (typeof cached[key] !== 'undefined') {
+          return cached[key]
+        }
+
+        // Set the key to prevent a circular loop
+        cached[key] = resolving
+        const result = calculate(this)
+        // Cache the result
+        cached[key] = result
+
+        return result
+      }
+    })
+  }
+
+  for (const [key, handle] of Object.entries(handlers)) {
+    proto[key] = function (event) {
+      handle(event, element)
+    }
+  }
+
+  return proto
 }

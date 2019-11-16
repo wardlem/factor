@@ -15,6 +15,7 @@ export default function define (name, definition = {}) {
     tag = camelToKebab(name),
     template = '',
     props = {},
+    calculations = {},
     handlers = {},
     transforms = {},
     actions = {},
@@ -53,6 +54,10 @@ export default function define (name, definition = {}) {
 
     static get handlers () {
       return handlers
+    }
+
+    static get calculations () {
+      return calculations
     }
 
     static get transforms () {

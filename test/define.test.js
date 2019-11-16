@@ -6,7 +6,7 @@ function waitFor (time) {
   })
 }
 
-describe('define', function () {
+describe.only('define', function () {
   it('creates classes that extend Factor.Element', function () {
     const FirstTestElement = define('FirstTestElement', { register: false })
     expect(Object.prototype.isPrototypeOf.call(Element.prototype, FirstTestElement.prototype)).to.equal(true)
@@ -354,6 +354,75 @@ describe('define', function () {
 
     const event = new Event('thing')
     element.rootNode.querySelector('div').dispatchEvent(event)
+  })
+
+  it('allows calculations to be defined', function (done) {
+    const props = {
+      number: {
+        type: Number,
+        default: 2
+      }
+    }
+
+    const calculations = {
+      squared: (data) => data.number ** 2
+    }
+
+    const template = '<div>{{squared}}</div>'
+
+    const CalculationTest1 = define('CalculationTest1', {
+      props,
+      calculations,
+      template
+    })
+
+    const element = document.createElement(CalculationTest1.tag)
+
+    const div = element.rootNode.querySelector('div')
+    expect(div.textContent).to.equal('4')
+    element.setAttribute('number', '12')
+    setTimeout(() => {
+      expect(div.textContent).to.equal('144')
+      done()
+    }, 20)
+  })
+
+  it('detects recursive calculations', function () {
+    const calculations = {
+      bad: (data) => data.badder,
+      badder: (data) => data.bad
+    }
+
+    const CalculationTest2 = define('CalculationTest2', {
+      calculations
+    })
+
+    expect(() => {
+      const element = document.createElement(CalculationTest2.tag)
+      element.viewData.bad
+    }).to.throw()
+  })
+
+  it('caches calculations', function () {
+    let value = 1
+    const calculations = {
+      value: () => value++
+    }
+
+    const CalculationTest3 = define('CalculationTest3', {
+      calculations
+    })
+
+    const element1 = document.createElement(CalculationTest3.tag)
+    const element2 = document.createElement(CalculationTest3.tag)
+
+    const viewData1 = element1.viewData
+    const viewData2 = element2.viewData
+    const viewData3 = element1.viewData
+
+    expect(viewData1.value).to.equal(viewData1.value)
+    expect(viewData2.value).to.not.equal(viewData1.value)
+    expect(viewData3.value).to.not.equal(viewData1.value)
   })
 
   it('defines transform functions', function (done) {
