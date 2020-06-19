@@ -462,7 +462,7 @@ Otherwise, the styles are converted to a an link:https://developer.mozilla.org/e
 ----
 const MyParagraph = FactorElement.define('MyParagraph', {
     template: '<p>{{content}}</p>',
-    style: 'p {color: red}',
+    styles: 'p {color: red}',
 })
 ----
 
