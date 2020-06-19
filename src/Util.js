@@ -37,7 +37,7 @@ export function setPath (object, path, value) {
   const [key, ...rest] = path
 
   let setTo
-  if (object == null || typeof setTo !== 'object') {
+  if (object == null || typeof object !== 'object') {
     if (/[0-9]+/.test(key)) {
       setTo = []
     } else {
