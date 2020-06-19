@@ -1,4 +1,4 @@
-= Factor
+prop= Factor
 
 Factor is a light-weight library for building functionally-styled, reactive web components.
 
@@ -26,17 +26,434 @@ Factor can be used to define a custom element.
 ----
 <my-greeter name="Everyone"></my-greeter>
 <script type="module">
-  import { define } from '@potient/factor/Factor.js'
-  const MyGreeter = define('MyGreeter', {
-    props: {
-      name: { type: String, default: 'World' }
-    },
-    template: '<p>Hello, {{name}}!</p>'
-  })
+    import { define } from '@potient/factor/Factor.js'
+    const MyGreeter = define('MyGreeter', {
+        props: {
+            name: { type: String, default: 'World' },
+        },
+        template: '<p>Hello, {{name}}!</p>',
+    })
 </script>
 ----
 
-More documentation is on the way.
+== Features
+
+1. Declarative, reactive template binding without virtual DOM overhead
+2. CSS animations for element entries and exits
+3. One-way data flow within individual components via actions and transforms
+4. Calculated properties with recursion protection
+
+
+== Quick Feature Tutorial
+
+This section provides a quick overview of how to use the various features of this library.
+
+=== Templates
+
+Factor does not have a parser.
+Instead, it sets a template string as the HTML content of a link:https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template[<template>] element, and walks the tree to bind the template to the custom element's view data.  As such, a template must be valid HTML in order to be processed.
+
+==== Text Interpolation
+
+Factor supports text interpolation using double-curly braces.
+
+[source,html]
+----
+<p>Hello {{person.name}}</p>
+----
+
+This also works with attribute values.
+
+[source,html]
+----
+<div id="person-{{person.id}}"></div>
+----
+
+However, this does not work with element tag names, since curly braces are not valid in tag names.
+
+==== Tag Directives
+
+Tag directives are html tags that are processed specially by Factor. Currently, Factor comes with three built-in tag directives, `<if>` and `<unless>` for conditional rendering and `<for>` for rendering collections of items.
+
+[source,html]
+----
+<if condition="showThis">
+    <p>Showing</p>
+</if>
+----
+
+In the above example, if `showThis` resolves to a truthy value, the paragraph will be displayed, otherwise it will not.  `<unless>` works identically to if except that it will only render its contents if the condition resolves to a falsey value.
+
+[source,html]
+----
+<for values="people" as="person" key-path="id">
+    <my-person #data="person"></my-person>
+</for>
+----
+
+The `key-path` is a path into each object in the collection.
+It is not required, but strongly recommended since it allows the directive to detect reordering of the data.
+It is also possible to specify a `key-function` which is called for each item to get the item's key.
+If neither a key-function` nor a `key-path` is provided, the key (e.g. array index) of the item within the collection is used.
+The key *must* be unique, or strange things may happen.
+
+Each of these tag directives also support entry and exit animation which is explained in a later section.
+
+Additional tag directives may be registered using the exported `Template.registerTagDirective` function.
+
+[source,javascript]
+----
+import {Template} from '@potient/factor/Factor.js'
+Template.registerTagDirective({
+    tag: 'mydirective',
+    bind(element) {
+        // Process element
+        return function (data) {
+            // Update the view
+        }
+    }
+})
+----
+
+==== Attribute Directives
+
+Special attributes may be used with the template to set various values of the element.
+Factor comes with five built-in attribute directives: `attr` for setting attributes, `class` for updating classes, `on` for setting event listeners, `prop` for setting properties, and `style` for modifying the element's styles.
+
+Attribute directives are used as a prefix followed by a colon, or as a symbol prefix as a shorthand.
+For example, the prop directive may be used as `prop:someKey="someValueKey"` or `#someKey="someValueKey"`.
+
+Most of the built-in directives support passing in an empty key which alters the directive's behavior to expect an object of values rather than a single value.
+For example, you can set an object of properties on an element with the `prop` directive.
+
+[source,html]
+----
+<div prop:="properties"></div>
+<!-- Equivalently -->
+<div #="properties"></div>
+----
+
+===== Attr
+
+The `attr` directive binds an elements attribute to the view data.
+
+[source,html]
+----
+<a attr:href="theLink">Some Link<a>
+----
+
+The `@` prefix is also supported as a shorthand.
+
+[source,html]
+----
+<a @href="theLink">Some Link<a>
+----
+
+The value of an attribute will always be converted to a string by the DOM.
+However, if the value resolves to `false`, `null` or `undefined`, the attribute will be removed.
+Conversely the value `true` will set the attributes value to an empty string.
+This is useful where only the presence or absence of an attribute matters, such as the `disabled` attribute of `<input>` elements.
+
+An object of attributes can be provided by omitting the attribute key.
+
+===== Class
+
+The `class` directive binds an element's class to data.
+A truthy value results in the class being included, whereas a falsey will remove it.
+
+[source,html]
+----
+<style>
+.capitalize {
+    text-transform: uppercase;
+}
+</style>
+<p class:capitalize="doCaps">Some Text</p>
+----
+
+The `.` symbol can also be used.
+[source,html]
+----
+<p .capitalize="doCaps">Some Text</p>
+----
+
+If no class name is provided, an object of class names is expected.
+The keys of the object are the class names, and each key with a truthy value is included in the element's class list.
+
+[source,html]
+----
+<p class:="classes">Some Text</p>
+<!-- or -->
+<p .="classes">Some Text</p>
+----
+
+===== On
+
+The `on` directive sets (and removes) event listeners.
+
+[source,html]
+----
+<p>{{clickCount}}</p>
+<button on:click="incrementClickCount">Click Me</button>
+----
+
+The `!` prefix can be used instead.
+
+[source,html]
+----
+<button !click="incrementClickCount">Click Me</button>
+----
+
+The preferred method for creating handlers is with handlers option when defining an element.
+The advantage of doing this is that the custom element will be passed as the second argument to the function rather than just the event.
+
+[source,javascript]
+----
+const MyClicker = define('MyClicker', {
+    handlers: {
+        clickHandler(event, myClickerElement) {
+            myClickerElement.action('clicked', {})
+        },
+    },
+    template: '<button !click="clickHandler">Click me!</button>',
+})
+----
+
+There are convenience methods for creating handlers that automatically trigger a transform or action.
+
+[source, javascript]
+----
+import {define, eventToTransform, eventToAction} from '/path/to/Factor.js'
+
+const MyElement = define('MyElement', {
+    handlers: {
+        someHandler: eventToTransform('someTransform', (event) => {key: event.someData}),
+        otherHandler: eventToAction('someAction', (event) => {key: event.someData}),
+    },
+    transforms: {
+        someTransform() {
+            // Do something
+        },
+    },
+    actions: {
+        async someAction() {
+            // Do something
+        },
+    },
+})
+----
+
+If no event name is provided, an object is expected where the properties are the event names and the values are the handlers.
+
+[source,html]
+----
+<a !="events">Link Text</a>
+----
+
+===== Prop
+
+The `prop` directive binds an element's property value.
+
+[source,html]
+----
+<my-element prop:some-prop="propValue"></my-element>
+----
+
+Notice that the property name is in `kebab-case`.
+This is converted `camelCase` before the property is set.
+The reason for this is that attribute names are case insensitive.
+So `prop:some-prop` will set the property `someProp` rather than the property `some-prop`.
+
+The `#` symbol prefix may be used instead.
+
+[source,html]
+----
+<my-element #some-prop="someValue"></my-element>
+----
+
+If no property name is provided, an object of properties is expected.
+
+[source,html]
+----
+<my-element #="properties"></my-element>
+----
+
+The primary advantage of useing properties over attributes is that properties are not required to be string values, whereas attributes are.
+
+===== Style
+
+The `style` directive sets style values for an element.
+
+[source,html]
+----
+<div style:background-color="red"></div>
+----
+
+The `$` symbol prefix can be used instead.
+
+[source,html]
+----
+<div $background-color="red"></div>
+----
+
+If no style name is provided, an object is expected where the keys are the style names and the values are the style values.
+When used in this way, the object properties may be the `camelCase` style name as they are accessed on link:https://developer.mozilla.org/en-US/docs/Web/API/ElementCSSInlineStyle/style[someElement.styles] rather than the `kebab-case` name.
+
+===== Registering Attribute Directives
+
+Additional attribute directives may be registered.
+
+[source,javascript]
+----
+import {Template} from '@potient/factor/Factor.js'
+Template.registerAttributeDirective({
+    prefix: 'data',
+    symbol: '%',
+    bind(element, key, valueKey) {
+        return function setData(data) {
+            // Example implementation...not a good one
+            const value = getPath(data, valueKey)
+            element.dataset[key] = value
+        }
+    },
+})
+----
+
+The symbol is optional and may be any combination of the characters `~!@#$%^&*?.|`.
+
+==== Props
+
+Factor supports defining props for your elements.
+Properties have a name, a type, a default value, and can be set externally as a property or an attribute.
+An update to a prop will automatically trigger an update to the elements view.
+
+[source,javascript]
+----
+const MyCounter = Factor.define('MyCounter', {
+    props: {
+        count: {
+            type: Number,
+        },
+        step: {
+            type: Number,
+            default: 1,
+        },
+    },
+    handlers: {
+        clickHandler: Factor.eventToTransform(),
+    },
+    transforms: {
+        click(state) {
+            return {
+                ...state,
+                count: state.count + state.step,
+            }
+        },
+    },
+    template: `
+        <button on:click="clickHandler">Clicked {{count}} times.</button>
+    `
+})
+
+const myCounterEl = document.createElement('my-counter')
+myCounterEl.count = 2
+myCounterEl.setAttribute('step', '3')
+
+assert(myCounterEl.count === 2)
+assert(myCounterEl.step === 3)
+----
+
+When the property's value is set it will be automatically converted based on the type property.
+Alternatively, a custom `convert` function may be supplied. Additionally, the type defines the default value if none is supplied.
+If no type is provided, no conversion is performed and the default is `undefined`.
+Currently, `String`, `Boolean`, `Number`, `Array`, `Object`, and `Date` are supported types.
+
+For the most part conversion works as one might expect.
+However, setting a `Boolean` attribute works differently that setting a `Boolean` property.
+Any value, including the empty string, is considered a `true` value when setting a prop with an attribute, whereas setting a boolean prop as a property converts it according to JavaScript's truthiness rules.
+
+`Array` and `Object` properties may define a `sub` prop to automatically process items within the collection.
+
+By default the corresponding attribute name is calculated from the prop name.
+For example the prop `myKey` can be set with the attribute `my-key`.
+This is due to case-insensitive natrue of DOM attributes.
+
+Property changes can automatically trigger transforms and actions.
+The property value will be supplied as the data for the transform or action function.
+
+It is important to note that if setting a prop only triggers a view update if the new value is different than the existing value.
+
+==== State
+
+Factor elements implement a one-way data flow model for updates.
+In other words, the element's data cannot be updated directly, but should instead rely upon transformative functions that return new data states.
+While this is not enforced (for reasons of efficiency), directly modifying an element's state will not result in the view being updated and may result in unexpected behavior.
+
+Factor provides two mechanisms for transforming an element's state: transforms and actions.  A transform is a synchronous function that receives the current state along with some data, and returns a new state for the element.  An action is an asynchronous function that can perform one or more things (e.g. making an HTTP request to load data) that update the state (typically by triggering transforms).
+
+[source,javascript]
+----
+const MyUser = Factor.define('MyUser', {
+    props: {
+        user: {type: Object},
+        lading: {type: O}
+    },
+    template: `
+        <unless condition="loading">
+            <p>{{user.name}}</p>
+            <a on:click="refreshUser">Refresh</a>
+        </unless>
+        <if condition="loading">
+            <p>loading</p>
+        </if>
+    `,
+    handlers: {
+        refreshUser: Factor.eventToAction('loadUser')
+    },
+    transforms: {
+        setUser(state, user) {
+            return {
+                ...state,
+                user,
+                loading: false,
+            }
+        },
+        setLoading(state, loading = true) {
+            return {
+                ...state,
+                loading,
+            }
+        },
+    },
+    actions: {
+        async init(state, data, ctx) {
+            // Load the user on entry
+            return ctx.action('loadUser')
+        },
+        async loadUser(state, data, ctx) {
+            // ctx is the element
+
+            if (state.loading) {
+                return
+            }
+
+            ctx.transform('setLoading')
+            const response = await fetch('/path/to/get/user')
+            const data = await response.json()
+            ctx.transform('setUser', data)
+        },
+    },
+})
+----
+
+==== Animations
+
+The `for`, `if`, and `unless` tag directives support animations.
+However, the API is currently subject to change and so is not yet documented.
+
+==== Stylesheets
+
+Support for efficient sharing of stylesheets is a planned feature that should be added in the near future.
 
 == Contributing
 
