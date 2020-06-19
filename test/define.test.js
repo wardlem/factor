@@ -579,4 +579,23 @@ describe('define', function () {
     await waitFor(10)
     expect(element.rootNode.textContent).to.equal('6 / 23')
   })
+
+  it('allows styles to be defined', function (done) {
+    const StyleTest1 = define('StyleTest1', {
+      template: '<p class="testp"></p>',
+      styles: '.testp {color: rgb(255, 0, 0)}'
+    })
+
+    const element = document.createElement(StyleTest1.tag)
+    const p = element.rootNode.querySelector('p')
+    expect(p).to.exist
+    const styles = window.getComputedStyle(p)
+    document.body.appendChild(element)
+    // Delay, because it takes the browser a bit to parse / apply the styles
+    setTimeout(() => {
+      expect(styles.getPropertyValue('color')).to.equal('rgb(255, 0, 0)')
+      document.body.removeChild(element)
+      done()
+    }, 50)
+  })
 })

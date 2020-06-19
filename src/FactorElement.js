@@ -7,7 +7,7 @@ import {
   setPath,
   immediately,
   isEqual,
-  kebabToCamel
+  CONSTRUCTABLE_STYLES_AVAILABLE
 } from './Util'
 
 export default class FactorElement extends HTMLElement {
@@ -51,6 +51,18 @@ export default class FactorElement extends HTMLElement {
     } else {
       // NOOP
       this._binding = () => {}
+    }
+
+    const stylesheet = this.constructor.stylesheet
+    if (stylesheet) {
+      if (CONSTRUCTABLE_STYLES_AVAILABLE) {
+        this.rootNode.adoptedStyleSheets = [stylesheet]
+      } else {
+        const linkEl = document.createElement('link')
+        linkEl.href = stylesheet
+        linkEl.rel = 'stylesheet'
+        this.rootNode.prepend(linkEl)
+      }
     }
   }
 

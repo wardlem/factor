@@ -448,12 +448,26 @@ const MyUser = Factor.define('MyUser', {
 
 ==== Animations
 
-The `for`, `if`, and `unless` tag directives support animations.
+The `for`, `if`, and `unless` tag directives support CSS animations.
 However, the API is currently subject to change and so is not yet documented.
 
-==== Stylesheets
+==== Styles
 
-Support for efficient sharing of stylesheets is a planned feature that should be added in the near future.
+Styles can be defined for your element.
+Styles are shared efficiently across multiple instances of your custom element type.
+When available, link:https://developers.google.com/web/updates/2019/02/constructable-stylesheets[constructable stylesheets] are used.
+Otherwise, the styles are converted to a an link:https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL[object URL] using a blob so that the browser only needs to parse the stylesheet once.
+
+[source,javascript]
+----
+const MyParagraph = FactorElement.define('MyParagraph', {
+    template: '<p>{{content}}</p>',
+    style: 'p {color: red}',
+})
+----
+
+Styles are scoped to the current element, which is why using the `p` selector in the above example is safe.
+Styles are also static, meaning they do not support text interpolation.
 
 == Contributing
 

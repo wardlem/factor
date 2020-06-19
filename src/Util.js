@@ -144,3 +144,13 @@ export function objectFrom (pairs) {
 
   return out
 }
+
+export const CONSTRUCTABLE_STYLES_AVAILABLE = (() => {
+  try {
+    // eslint-disable-next-line
+    new CSSStyleSheet()
+    return true
+  } catch (_err) {
+    return false
+  }
+})()
