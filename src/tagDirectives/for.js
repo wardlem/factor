@@ -162,6 +162,8 @@ function calculateStartRects (items, doAnimation) {
         ]
       }).filter(Boolean)
     }))
+  } else {
+    startRects = new Map()
   }
 
   return startRects
@@ -282,10 +284,12 @@ function animateActiveItems (items, doAnimation, moveAnimationOpts, enterAnimati
     }).filter(Boolean)
   })
 
-  Promise.all(animations)
+  return Promise.all(animations)
     .then((animations) => {
       for (const animation of animations) {
-        animation.cancel()
+        if (animation != null) {
+          animation.cancel()
+        }
       }
     })
 }

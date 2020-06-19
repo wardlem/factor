@@ -110,7 +110,7 @@ describe('define', function () {
 
     const element = document.createElement(DefinePropertyTestThree.tag)
     expect(element.testProp).to.equal('initial')
-    element.setAttribute('testProp', 'updated')
+    element.setAttribute('test-prop', 'updated')
     expect(element.testProp).to.equal('updated')
   })
 

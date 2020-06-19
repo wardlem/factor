@@ -1,6 +1,7 @@
 import {
   isEqual,
-  objectFrom
+  objectFrom,
+  camelToKebab
 } from './Util'
 
 export function defineProps (proto, props) {
@@ -10,7 +11,7 @@ export function defineProps (proto, props) {
 }
 
 function defineProp (proto, key, def) {
-  const attribute = def.attribute || key.toLowerCase()
+  const attribute = def.attribute || camelToKebab(key)
   const descriptor = {
     get () {
       return this.get(key)

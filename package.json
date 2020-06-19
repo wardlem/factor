@@ -4,8 +4,10 @@
   "description": "A light-weight framework for building reactive components",
   "main": "Factor.js",
   "scripts": {
-    "test": "npm run prepare && karma start --single-run",
-    "prepare": "rollup index.js --format esm --file Factor.js"
+    "karma": "npm run prepare && karma start --single-run",
+    "test": "npm run prepare:test && serve test -l 1234",
+    "prepare": "rollup index.js --format esm --file Factor.js",
+    "prepare:test": "npm run prepare && rollup test/runner.js --format esm --file test/runner.build.js"
   },
   "repository": {
     "type": "git",

@@ -6,7 +6,8 @@ import {
   getPath,
   setPath,
   immediately,
-  isEqual
+  isEqual,
+  kebabToCamel
 } from './Util'
 
 export default class FactorElement extends HTMLElement {

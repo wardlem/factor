@@ -27,7 +27,7 @@ export default function define (name, definition = {}) {
 
   const defaultProps = calculateDefaultProps(props)
   const observedAttributes = Object.entries(props).map(
-    ([name, prop]) => prop.attribute || name.toLowerCase()
+    ([name, prop]) => prop.attribute || camelToKebab(name)
   )
 
   class CustomElement extends FactorElement {
