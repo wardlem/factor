@@ -1,4 +1,4 @@
-prop= Factor
+= Factor
 
 Factor is a light-weight library for building functionally-styled, reactive web components.
 
@@ -278,7 +278,7 @@ If no property name is provided, an object of properties is expected.
 <my-element #="properties"></my-element>
 ----
 
-The primary advantage of useing properties over attributes is that properties are not required to be string values, whereas attributes are.
+The primary advantage of using properties over attributes is that properties are not required to be string values, whereas attributes are.
 
 ===== Style
 
