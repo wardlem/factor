@@ -40,6 +40,7 @@ export default class FactorElement extends HTMLElement {
     }
 
     this.transform('init', {}, false)
+    this.action('init', {})
   }
 
   _initView () {
