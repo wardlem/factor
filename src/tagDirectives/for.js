@@ -214,11 +214,12 @@ function updateActiveItems (items, data, anchorNode, as, indexAs) {
       }
     }
 
-    item.binding({
-      ...data,
+    const newData = Object.create(data)
+    Object.assign(newData, {
       [as]: item.item,
       [indexAs]: item.index
     })
+    item.binding(newData)
   }
 }
 
