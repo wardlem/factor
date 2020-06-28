@@ -36,6 +36,15 @@ describe('define', function () {
     expect(TestElement.tag).to.equal('other-tag')
   })
 
+  it('stringifies to the tag name', function () {
+    const TestElement = define('TestElement', {
+      register: false,
+      tag: 'other-tag'
+    })
+
+    expect(String(TestElement)).to.equal('other-tag')
+  })
+
   it('accepts a kebab name', function () {
     const TestElement = define('test-element', { register: false })
     expect(TestElement.name).to.equal('test-element')
