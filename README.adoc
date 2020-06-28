@@ -133,7 +133,7 @@ For such cases, or when there is only a single element to apply the directive to
 ==== Attribute Directives
 
 Special attributes may be used with the template to set various values of the element.
-Factor comes with five built-in attribute directives: `attr` for setting attributes, `class` for updating classes, `on` for setting event listeners, `prop` for setting properties, and `style` for modifying the element's styles.
+Factor comes with six built-in attribute directives: `attr` for setting attributes, `class` for updating classes, `id` for setting the id property, `on` for setting event listeners, `prop` for setting properties, and `style` for modifying the element's styles.
 
 Attribute directives are used as a prefix followed by a colon, or as a symbol prefix as a shorthand.
 For example, the prop directive may be used as `prop:someKey="someValueKey"` or `#someKey="someValueKey"`.
@@ -187,6 +187,7 @@ A truthy value results in the class being included, whereas a falsey will remove
 ----
 
 The `.` symbol can also be used.
+
 [source,html]
 ----
 <p .capitalize="doCaps">Some Text</p>
@@ -200,6 +201,34 @@ The keys of the object are the class names, and each key with a truthy value is 
 <p class:="classes">Some Text</p>
 <!-- or -->
 <p .="classes">Some Text</p>
+----
+
+===== Id
+
+The `id` attribute directive can be used to set an id for an element.
+It can resolve to a string or an array.
+If an array is provided, the id will be joined with the `-` character.
+
+[source,html]
+----
+<div id:="idProp"></div>
+----
+
+The `#` symbol can be used as a prefix instead.
+
+[source,html]
+----
+<div #="idProp"></div>
+----
+
+If an attribute name is provided, it will be treated as a prefix for the id.
+
+[source,html]
+----
+<!-- The id will be something like item-12 -->
+<div id:item="itemId"></div>
+<!-- Equivalently -->
+<div #item="itemId"></div>
 ----
 
 ===== On
