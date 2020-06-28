@@ -69,10 +69,10 @@ describe('Template', function () {
       expect(div.test).to.equal('Vader')
     })
 
-    it('binds properties with the # prefix', function () {
-      const { binding, container } = bindAndContain('<div #test="dude"></div>')
+    it('binds properties with the : prefix', function () {
+      const { binding, container } = bindAndContain('<div :test="dude"></div>')
       const div = container.childNodes[0]
-      expect(div.getAttribute('#test')).to.not.exist
+      expect(div.getAttribute(':test')).to.not.exist
       expect(div.test).to.not.exist
       binding({ dude: 'Vader' })
       expect(div.test).to.equal('Vader')
@@ -94,10 +94,10 @@ describe('Template', function () {
       expect(div.prop2).to.equal('two')
     })
 
-    it('binds an object of properties with the # prefix', function () {
-      const { binding, container } = bindAndContain('<div #="theProps"></div>')
+    it('binds an object of properties with the : prefix', function () {
+      const { binding, container } = bindAndContain('<div :="theProps"></div>')
       const div = container.childNodes[0]
-      expect(div.getAttribute('#')).to.not.exist
+      expect(div.getAttribute(':')).to.not.exist
       expect(div.prop1).to.not.exist
       expect(div.prop2).to.not.exist
       binding({
@@ -111,9 +111,9 @@ describe('Template', function () {
     })
 
     it('removes missing props when removed from second update', function () {
-      const { binding, container } = bindAndContain('<div #="theProps"></div>')
+      const { binding, container } = bindAndContain('<div :="theProps"></div>')
       const div = container.childNodes[0]
-      expect(div.getAttribute('#')).to.not.exist
+      expect(div.getAttribute(':')).to.not.exist
       expect(div.prop1).to.not.exist
       expect(div.prop2).to.not.exist
       binding({
@@ -133,9 +133,9 @@ describe('Template', function () {
     })
 
     it('removes all missing props when second update has null value', function () {
-      const { binding, container } = bindAndContain('<div #="theProps"></div>')
+      const { binding, container } = bindAndContain('<div :="theProps"></div>')
       const div = container.childNodes[0]
-      expect(div.getAttribute('#')).to.not.exist
+      expect(div.getAttribute(':')).to.not.exist
       expect(div.prop1).to.not.exist
       expect(div.prop2).to.not.exist
       binding({
@@ -163,7 +163,7 @@ describe('Template', function () {
     })
 
     it('converts kebab-case to camelCase', function () {
-      const { binding, container } = bindAndContain('<div #test-prop="dude"></div>')
+      const { binding, container } = bindAndContain('<div :test-prop="dude"></div>')
       const div = container.childNodes[0]
       expect(div.testProp).to.not.exist
       binding({ dude: 'Vader' })
@@ -645,7 +645,7 @@ describe('Template', function () {
     })
 
     it('updates the child nodes bindings when visible', function () {
-      const { binding, container } = bindAndContain('<if condition="show"><p #something="prop">Hello {{person}}!</p></if>')
+      const { binding, container } = bindAndContain('<if condition="show"><p :something="prop">Hello {{person}}!</p></if>')
       expect(container.querySelector('p')).to.not.exist
       binding({ show: true, prop: 'ok', person: 'Luke' })
       expect(container.querySelector('p')).to.exist
@@ -764,7 +764,7 @@ describe('Template', function () {
     })
 
     it('updates the child nodes bindings when visible', function () {
-      const { binding, container } = bindAndContain('<unless condition="show"><p #something="prop">Hello {{person}}!</p></unless>')
+      const { binding, container } = bindAndContain('<unless condition="show"><p :something="prop">Hello {{person}}!</p></unless>')
       expect(container.querySelector('p')).to.not.exist
       binding({ show: false, prop: 'ok', person: 'Luke' })
       expect(container.querySelector('p')).to.exist

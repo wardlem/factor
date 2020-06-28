@@ -127,9 +127,9 @@ function bindElementAttributes (element) {
   const names = element.getAttributeNames()
   return names.flatMap((name) => {
     const value = element.getAttribute(name)
-    if (/^[~!@#$%^&*?.|]/.test(name)) {
+    if (/^[~!@#$%^&*?.|:]/.test(name)) {
       // Symbol directive
-      const [symbol, nameValue] = /^([~!@#$%^&*?.|]+)(.*)$/.exec(name).slice(1)
+      const [symbol, nameValue] = /^([~!@#$%^&*?.|:]+)(.*)$/.exec(name).slice(1)
       if (!ATTR_SYMBOL_REGISTRY.has(symbol)) {
         return []
       }

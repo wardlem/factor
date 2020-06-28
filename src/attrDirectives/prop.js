@@ -6,7 +6,7 @@ import {
 
 const prop = {
   prefix: 'prop',
-  symbol: '#',
+  symbol: ':',
   bind (element, propName, propKey) {
     if (propName === '') {
       // This will be an object of properties
