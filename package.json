@@ -7,7 +7,7 @@
     "karma": "npm run prepare && karma start --single-run",
     "test": "npm run prepare:test && serve test -l 1234",
     "prepare": "rollup index.js --format esm --file Factor.js",
-    "prepare:test": "npm run prepare && rollup test/runner.js --format esm --file test/runner.build.js"
+    "prepare:test": "npm run prepare && rollup -c test/rollup.config.js"
   },
   "repository": {
     "type": "git",
@@ -25,6 +25,8 @@
   },
   "homepage": "https://github.com/wardlem/factor#readme",
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^13.0.0",
+    "@rollup/plugin-node-resolve": "^8.1.0",
     "chai": "^4.2.0",
     "eslint": "^7.2.0",
     "eslint-config-standard": "^14.1.1",
@@ -41,6 +43,7 @@
     "karma-rollup-preprocessor": "^7.0.5",
     "mocha": "^8.0.1",
     "rollup": "^1.26.3",
+    "serve": "^11.3.2",
     "web-animations-js": "^2.3.2"
   }
 }

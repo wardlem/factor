@@ -18,6 +18,10 @@ export default class FactorElement extends HTMLElement {
     this._initState()
     this._initView()
     this._render()
+    this._initStyles()
+      .catch((err) => {
+        console.error(`Could not initialize stylesheet for ${this.constructor.name}`, err)
+      })
     this._renderFrame = null
   }
 
@@ -78,8 +82,10 @@ export default class FactorElement extends HTMLElement {
       // NOOP
       this._binding = () => {}
     }
+  }
 
-    const stylesheet = this.constructor.stylesheet
+  async _initStyles () {
+    const stylesheet = await this.constructor.stylesheet
     if (stylesheet) {
       if (CONSTRUCTABLE_STYLES_AVAILABLE) {
         this.rootNode.adoptedStyleSheets = [stylesheet]

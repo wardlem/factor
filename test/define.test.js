@@ -635,6 +635,33 @@ describe('define', function () {
     }, 50)
   })
 
+  it('will load a stylesheet from a URL', function () {
+    const StyleTest2 = define('StyleTest2', {
+      template: '<p class="testp"></p>',
+      styles: new URL('../static/test.css', import.meta.url).href
+    })
+
+    const element = document.createElement(StyleTest2.tag)
+    const p = element.rootNode.querySelector('p')
+    expect(p).to.exist
+    const styles = window.getComputedStyle(p)
+    document.body.appendChild(element)
+    // Delay, because it takes the browser a bit to parse / apply the styles
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        try {
+          expect(styles.getPropertyValue('color')).to.equal('rgb(255, 0, 0)')
+          document.body.removeChild(element)
+        } catch (err) {
+          reject(err)
+          return
+        }
+
+        resolve()
+      }, 50)
+    })
+  })
+
   it('allows the view to be non-reactive', function (done) {
     const NonReactiveTest = define('NonReactiveTest', {
       register: true,

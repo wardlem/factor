@@ -1,9 +1,12 @@
 import FactorElement from './FactorElement'
 import {
   setFunctionName,
-  camelToKebab,
-  CONSTRUCTABLE_STYLES_AVAILABLE
+  camelToKebab
 } from './Util'
+
+import {
+  loadStyleSheet
+} from './Loader'
 
 import {
   calculateDefaultProps,
@@ -28,16 +31,6 @@ export default function define (name, definition = {}) {
   const templateElement = document.createElement('template')
   templateElement.innerHTML = template
 
-  let stylesheet = null
-  if (typeof styles === 'string') {
-    if (CONSTRUCTABLE_STYLES_AVAILABLE) {
-      stylesheet = new CSSStyleSheet()
-      stylesheet.replaceSync(styles)
-    } else {
-      stylesheet = URL.createObjectURL(new Blob(Array.from(styles), { type: 'text/css' }))
-    }
-  }
-
   const defaultProps = calculateDefaultProps(props)
   const observedAttributes = Object.entries(props).map(
     ([name, prop]) => prop.attribute || camelToKebab(name)
@@ -53,7 +46,7 @@ export default function define (name, definition = {}) {
     }
 
     static get stylesheet () {
-      return stylesheet
+      return loadStyleSheet(styles)
     }
 
     static get defaultProps () {
