@@ -19,7 +19,6 @@ const forDirective = {
     const indexAs = element.getAttribute('index-as') || 'index'
     const template = document.createElement('template')
     if (element.tagName !== 'FOR') {
-      console.log('element', element)
       const bindElement = element.cloneNode(true)
       for (const attribute of [
         'directive',
