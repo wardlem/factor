@@ -18,7 +18,7 @@ export default function define (name, definition = {}) {
   const {
     tag = camelToKebab(name),
     template = '',
-    styles = null,
+    styles: _styles = null,
     props = {},
     calculations = {},
     handlers = {},
@@ -36,6 +36,13 @@ export default function define (name, definition = {}) {
     ([name, prop]) => prop.attribute || camelToKebab(name)
   )
 
+  let styles = _styles
+  if (styles == null) {
+    styles = []
+  } else if (!Array.isArray(styles)) {
+    styles = [styles]
+  }
+
   class CustomElement extends FactorElement {
     static get tag () {
       return tag
@@ -45,8 +52,8 @@ export default function define (name, definition = {}) {
       return templateElement
     }
 
-    static get stylesheet () {
-      return loadStyleSheet(styles)
+    static get stylesheets () {
+      return styles.map(loadStyleSheet)
     }
 
     static get defaultProps () {
