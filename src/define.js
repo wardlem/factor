@@ -21,7 +21,8 @@ export default function define (name, definition = {}) {
     handlers = {},
     transforms = {},
     actions = {},
-    register = true
+    register = true,
+    reactive = true
   } = definition
 
   const templateElement = document.createElement('template')
@@ -82,6 +83,10 @@ export default function define (name, definition = {}) {
 
     static get actions () {
       return actions
+    }
+
+    static get reactive () {
+      return reactive
     }
 
     static get observedAttributes () {

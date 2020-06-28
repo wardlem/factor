@@ -67,7 +67,12 @@ export default class FactorElement extends HTMLElement {
     const template = this.constructor.template
     if (template) {
       const fragment = document.importNode(template.content, true)
-      this._binding = generateBinding(fragment)
+      if (!this.constructor.reactive) {
+        // NOOP
+        this._binding = () => {}
+      } else {
+        this._binding = generateBinding(fragment)
+      }
       this.rootNode.appendChild(fragment)
     } else {
       // NOOP
