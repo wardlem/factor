@@ -145,7 +145,7 @@ For example, you can set an object of properties on an element with the `prop` d
 ----
 <div prop:="properties"></div>
 <!-- Equivalently -->
-<div #="properties"></div>
+<div :="properties"></div>
 ----
 
 ===== Attr
@@ -279,18 +279,18 @@ This is converted `camelCase` before the property is set.
 The reason for this is that attribute names are case insensitive.
 So `prop:some-prop` will set the property `someProp` rather than the property `some-prop`.
 
-The `#` symbol prefix may be used instead.
+The `:` symbol prefix may be used instead.
 
 [source,html]
 ----
-<my-element #some-prop="someValue"></my-element>
+<my-element :some-prop="someValue"></my-element>
 ----
 
 If no property name is provided, an object of properties is expected.
 
 [source,html]
 ----
-<my-element #="properties"></my-element>
+<my-element :="properties"></my-element>
 ----
 
 The primary advantage of using properties over attributes is that properties are not required to be string values, whereas attributes are.
