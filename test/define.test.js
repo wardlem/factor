@@ -392,6 +392,33 @@ describe('define', function () {
     }, 50)
   })
 
+  it('registers props that are defined before the element is defined', function () {
+    const props = {
+      test: {
+        type: String,
+        default: 'wrong'
+      }
+    }
+
+    const element = document.createElement('predefined-props-test')
+
+    element.test = 'correct'
+
+    const PredefinedPropsTest = define('PredefinedPropsTest', {
+      props,
+      tag: 'predefined-props-test'
+    })
+
+    document.body.appendChild(element)
+
+    expect(element).to.be.instanceof(PredefinedPropsTest)
+    expect(element.shadowRoot).to.exist
+    expect(element.test).to.equal('correct')
+    expect(element.state.test).to.equal('correct')
+
+    document.body.removeChild(element)
+  })
+
   it('allows event handlers to be defined', function (done) {
     const handlers = {
       customHandler: (event, ctx) => {
