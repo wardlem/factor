@@ -84,18 +84,21 @@ export default class FactorElement extends HTMLElement {
     }
   }
 
-  async _initStyles () {
-    const stylesheet = await this.constructor.stylesheet
-    if (stylesheet) {
-      if (CONSTRUCTABLE_STYLES_AVAILABLE) {
-        this.rootNode.adoptedStyleSheets = [stylesheet]
-      } else {
-        const linkEl = document.createElement('link')
-        linkEl.href = stylesheet
-        linkEl.rel = 'stylesheet'
-        this.rootNode.prepend(linkEl)
+  _initStyles () {
+    const stylesheets = this.constructor.stylesheets || []
+    return Promise.allSettled(stylesheets.map(async (stylesheetPromise) => {
+      const stylesheet = await stylesheetPromise
+      if (stylesheet) {
+        if (CONSTRUCTABLE_STYLES_AVAILABLE) {
+          this.rootNode.adoptedStyleSheets = [stylesheet]
+        } else {
+          const linkEl = document.createElement('link')
+          linkEl.href = stylesheet
+          linkEl.rel = 'stylesheet'
+          this.rootNode.prepend(linkEl)
+        }
       }
-    }
+    }))
   }
 
   _render () {

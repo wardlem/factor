@@ -662,6 +662,36 @@ describe('define', function () {
     })
   })
 
+  it('allows multipe styles to be defined', function () {
+    const StyleTest3 = define('StyleTest3', {
+      template: '<p class="testp"></p>',
+      styles: [
+        '.testp {font-weight: 800}',
+        new URL('../static/test.css', import.meta.url)
+      ]
+    })
+
+    const element = document.createElement(StyleTest3.tag)
+    const p = element.rootNode.querySelector('p')
+    expect(p).to.exist
+    const styles = window.getComputedStyle(p)
+    document.body.appendChild(element)
+    // Delay, because it takes the browser a bit to parse / apply the styles
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        try {
+          expect(styles.getPropertyValue('color')).to.equal('rgb(255, 0, 0)')
+          expect(styles.getPropertyValue('font-weight')).to.equal('800')
+          document.body.removeChild(element)
+          resolve(null)
+          return
+        } catch (err) {
+          reject(err)
+        }
+      }, 100)
+    })
+  })
+
   it('allows the view to be non-reactive', function (done) {
     const NonReactiveTest = define('NonReactiveTest', {
       register: true,

@@ -2,7 +2,7 @@ import { Element } from '../Factor.js'
 
 describe('FactorElement', function () {
   beforeEach(function () {
-    document.body.innerHTML = ''
+    // document.body.innerHTML = ''
   })
 
   it('extends HTMLElement', function () {
