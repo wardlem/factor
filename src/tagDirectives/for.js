@@ -214,8 +214,8 @@ function updateActiveItems (items, data, anchorNode, as, indexAs) {
       }
     }
 
-    const newData = Object.create(data)
-    Object.assign(newData, {
+    const newData = Object.create(Object.getPrototypeOf(data))
+    Object.assign(newData, data, {
       [as]: item.item,
       [indexAs]: item.index
     })
