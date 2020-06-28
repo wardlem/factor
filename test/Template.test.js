@@ -615,6 +615,55 @@ describe('Template', function () {
     })
   })
 
+  describe('id:', function () {
+    it('sets the id of the element with the id: prefix', function () {
+      const { binding, container } = bindAndContain('<div id:="someId"></div>')
+      const div = container.childNodes[0]
+      expect(div.getAttribute('id:')).to.not.exist
+      expect(div.id).to.be.empty
+      binding({ someId: 'thing-1' })
+      expect(div.id).to.equal('thing-1')
+    })
+
+    it('sets the id of the element the # prefix', function () {
+      const { binding, container } = bindAndContain('<div #="someId"></div>')
+      const div = container.childNodes[0]
+      expect(div.getAttribute('id:')).to.not.exist
+      expect(div.id).to.be.empty
+      binding({ someId: 'thing-1' })
+      expect(div.id).to.equal('thing-1')
+    })
+
+    it('removes the id if it becomes nullish', function () {
+      const { binding, container } = bindAndContain('<div id:="someId"></div>')
+      const div = container.childNodes[0]
+      expect(div.getAttribute('id:')).to.not.exist
+      expect(div.id).to.be.empty
+      binding({ someId: 'thing-1' })
+      expect(div.id).to.equal('thing-1')
+      binding({ someId: null })
+      expect(div.id).to.be.empty
+    })
+
+    it('concatenates an array of id parts', function () {
+      const { binding, container } = bindAndContain('<div id:="someId"></div>')
+      const div = container.childNodes[0]
+      expect(div.getAttribute('id:')).to.not.exist
+      expect(div.id).to.be.empty
+      binding({ someId: ['thing', 1] })
+      expect(div.id).to.equal('thing-1')
+    })
+
+    it('uses the prefix as the first part if provided', function () {
+      const { binding, container } = bindAndContain('<div id:thing="someId"></div>')
+      const div = container.childNodes[0]
+      expect(div.getAttribute('id:')).to.not.exist
+      expect(div.id).to.be.empty
+      binding({ someId: [1] })
+      expect(div.id).to.equal('thing-1')
+    })
+  })
+
   describe('if', function () {
     it('does not show the value initially', function () {
       const { container } = bindAndContain('<if condition="show"><p>Hello!</p></if>')
