@@ -39,6 +39,26 @@ export default class FactorElement extends HTMLElement {
       ...this._defaultProps()
     }
 
+    for (const key of Object.keys(this.state)) {
+      if (Object.prototype.hasOwnProperty.call(this, key)) {
+        // The prop was set before the element type was defined.
+        // This creates a situation where the prototype getter / setter
+        // has been overwritten by a new property descriptor on the instance.
+        // To correct this, we need to redefine the property and set the
+        // current value in the state.
+
+        const value = this[key]
+        Object.defineProperty(
+          this,
+          key,
+          Object.getOwnPropertyDescriptor(this.constructor.prototype, key)
+        )
+
+        // Make sure the setter is called
+        this[key] = value
+      }
+    }
+
     this.transform('init', {}, false)
     this.action('init', {})
   }
