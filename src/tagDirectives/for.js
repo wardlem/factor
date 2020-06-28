@@ -18,7 +18,23 @@ const forDirective = {
     const as = element.getAttribute('as') || 'value'
     const indexAs = element.getAttribute('index-as') || 'index'
     const template = document.createElement('template')
-    template.innerHTML = element.innerHTML
+    if (element.tagName !== 'FOR') {
+      console.log('element', element)
+      const bindElement = element.cloneNode(true)
+      for (const attribute of [
+        'directive',
+        'values',
+        'key-path',
+        'key-function',
+        'as',
+        'index-as'
+      ]) {
+        bindElement.removeAttribute(attribute)
+      }
+      template.innerHTML = bindElement.outerHTML
+    } else {
+      template.innerHTML = element.innerHTML
+    }
 
     const {
       enterAnimationOpts,

@@ -68,8 +68,12 @@ export function bindElementChildren (element) {
 
 function processElementNode (element) {
   const tagName = element.tagName
+  const directiveAtt = element.getAttribute('directive')
   if (TAG_DIRECTIVE_REGISTRY.has(tagName)) {
     const bind = TAG_DIRECTIVE_REGISTRY.get(tagName)
+    return bind(element)
+  } else if (directiveAtt && TAG_DIRECTIVE_REGISTRY.has(directiveAtt.toUpperCase())) {
+    const bind = TAG_DIRECTIVE_REGISTRY.get(directiveAtt.toUpperCase())
     return bind(element)
   } else {
     return [

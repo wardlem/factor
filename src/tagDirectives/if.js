@@ -12,8 +12,22 @@ import {
 function makeBind (inverted) {
   return function bind (element) {
     const conditionKey = element.getAttribute('condition')
-    const childNodes = [...element.childNodes]
-    const childBindings = bindElementChildren(element)
+    let childNodes
+    let bindElement
+    if (element.tagName === 'IF' || element.tagName === 'UNLESS') {
+      bindElement = element
+      childNodes = [...element.childNodes]
+    } else {
+      bindElement = document.createElement('template')
+      const cloned = element.cloneNode(true)
+      for (const attribute of ['directive', 'condition']) {
+        cloned.removeAttribute(attribute)
+      }
+      childNodes = [cloned]
+      bindElement.append(cloned)
+    }
+
+    const childBindings = bindElementChildren(bindElement)
 
     const {
       enterAnimationOpts,

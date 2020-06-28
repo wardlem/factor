@@ -628,6 +628,13 @@ describe('Template', function () {
       expect(container.querySelector('p')).to.exist
     })
 
+    it('works with a directive attribute', function () {
+      const { binding, container } = bindAndContain('<p directive="if" condition="show">Hello!</p>')
+      expect(container.querySelector('p')).to.not.exist
+      binding({ show: true })
+      expect(container.querySelector('p')).to.exist
+    })
+
     it('removes the elements if the condition becomes falsy', function () {
       const { binding, container } = bindAndContain('<if condition="show"><p>Hello!</p></if>')
       expect(container.querySelector('p')).to.not.exist
@@ -740,6 +747,13 @@ describe('Template', function () {
       expect(container.querySelector('p')).to.exist
     })
 
+    it('works with a directive attribute', function () {
+      const { binding, container } = bindAndContain('<p directive="unless" condition="show">Hello!</p>')
+      expect(container.querySelector('p')).to.not.exist
+      binding({ show: false })
+      expect(container.querySelector('p')).to.exist
+    })
+
     it('removes the elements if the condition becomes truthy', function () {
       const { binding, container } = bindAndContain('<unless condition="show"><p>Hello!</p></unless>')
       expect(container.querySelector('p')).to.not.exist
@@ -771,6 +785,19 @@ describe('Template', function () {
 
     it('renders a list of items', function () {
       const { container, binding } = bindAndContain('<for values="items" as="item"><p>{{index}}: {{item}}</p></for>')
+      binding({
+        items: ['zero', 'one', 'two']
+      })
+
+      const children = container.querySelectorAll('p')
+      expect(children.length).to.equal(3)
+      expect(children[0].innerText).to.equal('0: zero')
+      expect(children[1].innerText).to.equal('1: one')
+      expect(children[2].innerText).to.equal('2: two')
+    })
+
+    it('works with a directive attribute', function () {
+      const { container, binding } = bindAndContain('<p directive="for" values="items" as="item">{{index}}: {{item}}</p>')
       binding({
         items: ['zero', 'one', 'two']
       })
@@ -832,6 +859,49 @@ describe('Template', function () {
 
     it('removes a child', function () {
       const { container, binding } = bindAndContain('<for values="items" as="item"><p>{{index}}: {{item}}</p></for>')
+      binding({
+        items: ['zero', 'one', 'two', 'three', 'four']
+      })
+
+      const children1 = container.querySelectorAll('p')
+      expect(children1.length).to.equal(5)
+      expect(children1[0].innerText).to.equal('0: zero')
+      expect(children1[1].innerText).to.equal('1: one')
+      expect(children1[2].innerText).to.equal('2: two')
+      expect(children1[3].innerText).to.equal('3: three')
+      expect(children1[4].innerText).to.equal('4: four')
+
+      binding({
+        items: ['zero', 'one', 'three', 'four']
+      })
+
+      const children2 = container.querySelectorAll('p')
+      expect(children2.length).to.equal(4)
+      expect(children2[0].innerText).to.equal('0: zero')
+      expect(children2[1].innerText).to.equal('1: one')
+      expect(children2[2].innerText).to.equal('2: three')
+      expect(children2[3].innerText).to.equal('3: four')
+
+      binding({
+        items: ['one', 'three', 'four']
+      })
+
+      const children3 = container.querySelectorAll('p')
+      expect(children3.length).to.equal(3)
+      expect(children3[0].innerText).to.equal('0: one')
+      expect(children3[1].innerText).to.equal('1: three')
+      expect(children3[2].innerText).to.equal('2: four')
+
+      binding({
+        items: []
+      })
+
+      const children5 = container.querySelectorAll('p')
+      expect(children5.length).to.equal(0)
+    })
+
+    it('removes a child when using a directive attribute', function () {
+      const { container, binding } = bindAndContain('<p directive="for" values="items" as="item">{{index}}: {{item}}</p>')
       binding({
         items: ['zero', 'one', 'two', 'three', 'four']
       })

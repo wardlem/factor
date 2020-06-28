@@ -115,6 +115,21 @@ Template.registerTagDirective({
 })
 ----
 
+There are certain situations where using a directive tag will not work as expected, such as when iterating within a table element.
+For such cases, or when there is only a single element to apply the directive to, you can use the `directive` attribute instead.
+
+[source,html]
+----
+<table>
+    <tbody>
+        <tr directive="for" values="rows" as="row" key-path="id" id="row-{{row.id}}">
+            <td>{{row.id}}</td>
+            <td>{{row.name}}</td>
+        </tr>
+    </tbody>
+</table>
+----
+
 ==== Attribute Directives
 
 Special attributes may be used with the template to set various values of the element.
