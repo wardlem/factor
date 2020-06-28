@@ -513,6 +513,17 @@ const MyParagraph = FactorElement.define('MyParagraph', {
 Styles are scoped to the current element, which is why using the `p` selector in the above example is safe.
 Styles are also static, meaning they do not support text interpolation.
 
+Styles may also be a URL string, a relative or absolute path, or a URL object and the stylesheet will be loaded from a remote resource.
+When doing this, it may be valuable to use the link:https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import.meta[import.meta.url] value to reference the stylesheet, since you may not know where the file will be loaded from.
+
+[source,javascript]
+----
+const MyParagraph = FactorElement.define('MyParagraph', {
+    template: '<p>{{content}}</p>',
+    styles: new URL('../styles/my-paragraph.css', import.meta.url),
+})
+----
+
 == Contributing
 
 

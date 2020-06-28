@@ -1,4 +1,4 @@
 node_modules
 package-lock.json
 Factor.js
-test/runner.build.js
+test/build
