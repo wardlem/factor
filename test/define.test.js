@@ -634,4 +634,26 @@ describe('define', function () {
       done()
     }, 50)
   })
+
+  it('allows the view to be non-reactive', function (done) {
+    const NonReactiveTest = define('NonReactiveTest', {
+      register: true,
+      template: '{{data}}',
+      reactive: false,
+      props: {
+        data: {
+          type: String,
+          default: 'something'
+        }
+      }
+    })
+
+    expect(NonReactiveTest.template.innerHTML).to.equal('{{data}}')
+    const element = document.createElement(NonReactiveTest.tag)
+    element.data = 'something else'
+    setTimeout(() => {
+      expect(element.shadowRoot.innerHTML).to.equal('{{data}}')
+      done()
+    }, 50)
+  })
 })
