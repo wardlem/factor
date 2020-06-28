@@ -87,6 +87,10 @@ export default function define (name, definition = {}) {
     static get observedAttributes () {
       return observedAttributes
     }
+
+    static toString () {
+      return tag
+    }
   }
 
   setFunctionName(CustomElement, name)
