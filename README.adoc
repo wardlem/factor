@@ -524,6 +524,29 @@ const MyParagraph = FactorElement.define('MyParagraph', {
 })
 ----
 
+==== Mixins
+
+If you are creating several different components that share a common structure, mixins maybe useful to avoid repeating code.
+A mixin is an object that defines props, calculations, handlers, transforms, actions, styles, and a template to be set on the element.
+
+[source,javascript]
+----
+const InputMixin = (type) => ({
+  props: {
+    name: {type: String},
+    placeholder: {type: String},
+  },
+  template: `<input type="${type}" @name="name" @placeholder="placeholder">`
+})
+
+const EmailInput = define('EmailInput', {
+  mixins: [InputMixin('email')]
+  props: {
+    placeholder: {type: String, default: 'Enter an email address'}
+  }
+})
+----
+
 == Contributing
 
 

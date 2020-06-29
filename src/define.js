@@ -26,7 +26,7 @@ export default function define (name, definition = {}) {
     actions = {},
     register = true,
     reactive = true
-  } = definition
+  } = processDefinition(definition)
 
   const templateElement = document.createElement('template')
   templateElement.innerHTML = template
@@ -113,4 +113,46 @@ export default function define (name, definition = {}) {
   }
 
   return CustomElement
+}
+
+function processDefinition (_definition) {
+  const {
+    mixins = []
+  } = _definition
+
+  const mixedIn = {}
+  const OBJECT_PROPS = ['calculations', 'props', 'handlers', 'transforms', 'actions']
+  const ARRAY_PROPS = ['styles']
+  const OVERRIDABLE_PROPS = ['template']
+  for (const mixin of mixins.concat([_definition])) {
+    for (const key of OBJECT_PROPS) {
+      if (mixin[key]) {
+        mixedIn[key] = {
+          ...(mixedIn[key] || {}),
+          ...mixin[key]
+        }
+      }
+    }
+
+    for (const key of ARRAY_PROPS) {
+      if (mixin[key] == null) {
+        continue
+      }
+
+      let value = mixin[key]
+      if (!Array.isArray(value)) {
+        value = [value]
+      }
+
+      mixedIn[key] = (mixedIn[key] || []).concat(value)
+    }
+
+    for (const key of OVERRIDABLE_PROPS) {
+      if (mixin[key] != null) {
+        mixedIn[key] = mixin[key]
+      }
+    }
+  }
+
+  return { ..._definition, ...mixedIn }
 }
