@@ -713,4 +713,241 @@ describe('define', function () {
       done()
     }, 50)
   })
+
+  describe('mixins', function () {
+    it('allows props to be mixed in', function () {
+      const mixin = {
+        props: {
+          mixinProp: {
+            type: String,
+            default: 'mixed'
+          },
+          override: {
+            type: Number,
+            default: 2
+          }
+        }
+      }
+
+      const MixinPropTest1 = define('MixinPropTest1', {
+        mixins: [mixin],
+        props: {
+          elementProp: {
+            type: String,
+            default: 'elemented'
+          },
+          override: {
+            type: Number,
+            default: 4
+          }
+        }
+      })
+
+      const element = document.createElement(MixinPropTest1.tag)
+      expect(element.mixinProp).to.equal('mixed')
+      expect(element.elementProp).to.equal('elemented')
+      expect(element.override).to.equal(4)
+    })
+
+    it('allows calculations to be mixed in', function () {
+      const mixin = {
+        calculations: {
+          mixedIn () {
+            return 'mixed in'
+          },
+          override () {
+            return 'wrong'
+          }
+        }
+      }
+
+      const MixinCalculationsTest1 = define('MixinCalculationsTest1', {
+        mixins: [mixin],
+        calculations: {
+          elemented () {
+            return 'element'
+          },
+          override () {
+            return 'right'
+          }
+        },
+        template: '{{mixedIn}} {{override}} {{elemented}}'
+      })
+
+      const element = document.createElement(MixinCalculationsTest1.tag)
+      expect(element.shadowRoot.innerHTML).to.equal('mixed in right element')
+    })
+
+    it('allows handlers to be mixed in', function () {
+      const data = {}
+      const mixin = {
+        handlers: {
+          mixedIn () {
+            data.mixedIn = 'mixed in'
+          },
+          override () {
+            data.override = 'wrong'
+          }
+        }
+      }
+
+      const MixinHandlersTest1 = define('MixinHandlersTest1', {
+        mixins: [mixin],
+        handlers: {
+          elemented () {
+            data.elemented = 'element'
+          },
+          override () {
+            data.override = 'right'
+          }
+        }
+      })
+
+      const element = document.createElement(MixinHandlersTest1.tag)
+      const dataProto = element._dataProto
+      expect(dataProto.mixedIn).to.be.a('function')
+      expect(dataProto.mixedIn() || data.mixedIn).to.equal('mixed in')
+      expect(dataProto.override).to.be.a('function')
+      expect(dataProto.override() || data.override).to.equal('right')
+      expect(dataProto.elemented).to.be.a('function')
+      expect(dataProto.elemented() || data.elemented).to.equal('element')
+    })
+
+    it('allows transforms to be mixed in', function () {
+      const mixin = {
+        transforms: {
+          mixedIn (state) {
+            return {
+              ...state,
+              mixedIn: 'mixed in'
+            }
+          },
+          override (state) {
+            return {
+              ...state,
+              override: 'wrong'
+            }
+          }
+        }
+      }
+
+      const MixinTransformsTest1 = define('MixinTransformsTest1', {
+        mixins: [mixin],
+        transforms: {
+          elemented (state) {
+            return {
+              ...state,
+              elemented: 'element'
+            }
+          },
+          override (state) {
+            return {
+              ...state,
+              override: 'right'
+            }
+          }
+        }
+      })
+
+      const element = document.createElement(MixinTransformsTest1.tag)
+
+      element.transform('mixedIn', {})
+      expect(element.state.mixedIn).to.equal('mixed in')
+      element.transform('override', {})
+      expect(element.state.override).to.equal('right')
+      element.transform('elemented', {})
+      expect(element.state.elemented).to.equal('element')
+    })
+
+    it('allows actions to be mixed in', async function () {
+      const mixin = {
+        actions: {
+          mixedIn () {
+            return 'mixed in'
+          },
+          override () {
+            return 'wrong'
+          }
+        }
+      }
+
+      const MixinActionsTest1 = define('MixinActionsTest1', {
+        mixins: [mixin],
+        actions: {
+          elemented () {
+            return 'element'
+          },
+          override () {
+            return 'right'
+          }
+        },
+        template: '{{mixedIn}} {{override}} {{elemented}}'
+      })
+
+      const element = document.createElement(MixinActionsTest1.tag)
+      expect(await element.action('mixedIn', {})).to.equal('mixed in')
+      expect(await element.action('elemented', {})).to.equal('element')
+      expect(await element.action('override', {})).to.equal('right')
+    })
+
+    it('allows styles to be mixed in', function () {
+      const mixin = {
+        styles: 'p {color: rgb(255, 0, 0); font-weight: 200;}'
+      }
+
+      const MixinStylesTest1 = define('MixinStylesTest1', {
+        mixins: [mixin],
+        styles: 'p {color: rgb(0, 255, 0); opacity: 0.5;}',
+        template: '<p>Some Text</p>'
+      })
+
+      const element = document.createElement(MixinStylesTest1.tag)
+      document.body.appendChild(element)
+      // Let the browser render it
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          const p = element.rootNode.querySelector('p')
+          const styles = window.getComputedStyle(p)
+          try {
+            expect(styles.getPropertyValue('color')).to.equal('rgb(0, 255, 0)')
+            expect(styles.getPropertyValue('font-weight')).to.equal('200')
+            expect(styles.getPropertyValue('opacity')).to.equal('0.5')
+          } catch (err) {
+            reject(err)
+            return
+          }
+
+          resolve(null)
+          document.body.removeChild(element)
+        }, 100)
+      })
+    })
+
+    it('allows a template to be mixed in', function () {
+      const mixin = {
+        template: 'ok'
+      }
+
+      const MixinTemplateTest1 = define('MixinTemplateTest1', {
+        mixins: [mixin]
+      })
+
+      const element = document.createElement(MixinTemplateTest1.tag)
+      expect(element.rootNode.innerHTML).to.equal('ok')
+    })
+
+    it('allows a mixed in template to be overwritten', function () {
+      const mixin = {
+        template: 'ok'
+      }
+
+      const MixinTemplateTest2 = define('MixinTemplateTest2', {
+        mixins: [mixin],
+        template: 'replaced'
+      })
+
+      const element = document.createElement(MixinTemplateTest2.tag)
+      expect(element.rootNode.innerHTML).to.equal('replaced')
+    })
+  })
 })

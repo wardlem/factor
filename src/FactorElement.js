@@ -84,21 +84,33 @@ export default class FactorElement extends HTMLElement {
     }
   }
 
-  _initStyles () {
-    const stylesheets = this.constructor.stylesheets || []
-    return Promise.allSettled(stylesheets.map(async (stylesheetPromise) => {
-      const stylesheet = await stylesheetPromise
-      if (stylesheet) {
-        if (CONSTRUCTABLE_STYLES_AVAILABLE) {
-          this.rootNode.adoptedStyleSheets = [stylesheet]
-        } else {
-          const linkEl = document.createElement('link')
-          linkEl.href = stylesheet
-          linkEl.rel = 'stylesheet'
-          this.rootNode.prepend(linkEl)
-        }
+  async _initStyles () {
+    const stylesheetPromises = this.constructor.stylesheets || []
+    const stylesheetResults = await Promise.allSettled(stylesheetPromises)
+
+    const stylesheets = []
+    for (const result of stylesheetResults) {
+      if (result.status === 'rejected') {
+        console.error('Loading a stylesheet failed', result.reason)
+        continue
       }
-    }))
+
+      stylesheets.push(result.value)
+    }
+
+    if (CONSTRUCTABLE_STYLES_AVAILABLE) {
+      this.rootNode.adoptedStyleSheets = stylesheets
+      return
+    }
+
+    const links = stylesheets.map((stylesheet) => {
+      const linkEl = document.createElement('link')
+      linkEl.href = stylesheet
+      linkEl.rel = 'stylesheet'
+      return linkEl
+    })
+
+    this.rootNode.prepend(...links)
   }
 
   _render () {
