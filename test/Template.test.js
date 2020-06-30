@@ -845,17 +845,47 @@ describe('Template', function () {
       expect(children[2].innerText).to.equal('2: two')
     })
 
-    it('works with a directive attribute', function () {
-      const { container, binding } = bindAndContain('<p directive="for" values="items" as="item">{{index}}: {{item}}</p>')
+    it.only('works with a directive attribute', function () {
+      const { container, binding } = bindAndContain('<p directive="for" values="items" as="item"><span>{{index}}: {{item}}</span></p>')
       binding({
         items: ['zero', 'one', 'two']
       })
 
       const children = container.querySelectorAll('p')
       expect(children.length).to.equal(3)
-      expect(children[0].innerText).to.equal('0: zero')
-      expect(children[1].innerText).to.equal('1: one')
-      expect(children[2].innerText).to.equal('2: two')
+      expect(children[0].innerHTML).to.equal('<span>0: zero</span>')
+      expect(children[1].innerHTML).to.equal('<span>1: one</span>')
+      expect(children[2].innerHTML).to.equal('<span>2: two</span>')
+    })
+
+    it('works with a directive attribute inside a table', function () {
+      const { container, binding } = bindAndContain(`
+        <table>
+          <tbody>
+            <tr directive="for" values="items" as="item" something="whatever" id="row-{{index}}">
+              <td>{{index}}</td>
+              <td>{{item}}</td>
+            </tr>
+          </tbody>
+        </table>
+      `.trim())
+
+      const items = ['zero', 'one', 'two']
+      binding({
+        items
+      })
+
+      const children = container.querySelectorAll('tr')
+      expect(children.length).to.equal(3)
+      let idx = 0
+      for (const child of Array.prototype.slice.call(children)) {
+        expect(child.id).to.equal(`row-${idx}`)
+        const childNodes = child.querySelectorAll('td')
+        expect(childNodes.length).to.equal(2)
+        expect(childNodes[0].innerText).to.equal(String(idx))
+        expect(childNodes[1].innerText).to.equal(items[idx])
+        idx += 1
+      }
     })
 
     it('appends to an existing list', function () {
