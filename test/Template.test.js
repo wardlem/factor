@@ -845,7 +845,7 @@ describe('Template', function () {
       expect(children[2].innerText).to.equal('2: two')
     })
 
-    it.only('works with a directive attribute', function () {
+    it('works with a directive attribute', function () {
       const { container, binding } = bindAndContain('<p directive="for" values="items" as="item"><span>{{index}}: {{item}}</span></p>')
       binding({
         items: ['zero', 'one', 'two']
@@ -884,6 +884,35 @@ describe('Template', function () {
         expect(childNodes.length).to.equal(2)
         expect(childNodes[0].innerText).to.equal(String(idx))
         expect(childNodes[1].innerText).to.equal(items[idx])
+        idx += 1
+      }
+    })
+
+    it('works on a th with previous for loop', function () {
+      const { container, binding } = bindAndContain(`
+        <for values="columns" as="column">
+          {{column.title}}
+        </for>
+        <table>
+          <thead>
+            <tr>
+              <th directive="for" values="columns" as="column">{{column.title}}</th>
+            </tr>
+          </thead>
+        </table>
+      `.trim())
+
+      const columns = [
+        { title: 'zero' }, { title: 'one' }, { title: 'two' }]
+      binding({
+        columns
+      })
+
+      const children = container.querySelectorAll('th')
+      expect(children.length).to.equal(3)
+      let idx = 0
+      for (const child of Array.prototype.slice.call(children)) {
+        expect(child.innerText).to.equal(columns[idx].title)
         idx += 1
       }
     })

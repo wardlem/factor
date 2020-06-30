@@ -5,7 +5,7 @@
   "main": "Factor.js",
   "scripts": {
     "karma": "npm run prepare && karma start --single-run",
-    "test": "npm run prepare:test && serve test -l 1234",
+    "test": "npm run prepare:test && serve test -l 2345",
     "prepare": "rollup index.js --format esm --file Factor.js",
     "prepare:test": "npm run prepare && rollup -c test/rollup.config.js"
   },
