@@ -144,7 +144,7 @@ function calculateUpdates (data, values, dataMap, getKey, template) {
       deleteItems.push(value)
     } else if (value.prevPos == null) {
       const fragment = document.importNode(template.content, true)
-      const placeholder = document.createComment('')
+      const placeholder = document.createComment('value')
       fragment.insertBefore(placeholder, fragment.firstChild)
       const bindings = bindElementChildren(fragment)
       value.binding = (data) => {
