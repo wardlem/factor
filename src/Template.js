@@ -54,7 +54,7 @@ export function generateBinding (rootElement) {
 }
 
 export function bindElementChildren (element) {
-  return Array.prototype.flatMap.call(element.childNodes, (childNode) => {
+  return [...element.childNodes].flatMap((childNode) => {
     switch (childNode.nodeType) {
       case Node.ELEMENT_NODE:
         return processElementNode(childNode)
